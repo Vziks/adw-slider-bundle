@@ -1,0 +1,30 @@
+services:
+    adw.admin.slider:
+        class: ADW\SliderBundle\Admin\SliderAdmin
+        arguments: [~, ADW\SliderBundle\Entity\Slider, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: "Slider", label: Slider }
+        calls:
+            - [setServiceContainer, ["@service_container"]]
+
+    adw.admin.slide:
+        class: ADW\SliderBundle\Admin\SlideAdmin
+        arguments: [~, ADW\SliderBundle\Entity\Slide, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: "Slider", label: Slide }
+        calls:
+            - [setServiceContainer, ["@service_container"]]
+
+    adw_slider.repository.slider_repository:
+        class: Doctrine\ORM\EntityRepository
+        factory: ["@doctrine.orm.entity_manager", getRepository]
+        arguments:
+            - "ADW\\SliderBundle\\Entity\\Slider"
+
+    adw.slider.extension:
+        class: ADW\SliderBundle\Twig\Extension\SliderExtension
+        arguments:
+            - "@adw_slider.repository.slider_repository"
+            - "@service_container"
+        tags:
+            - { name: twig.extension }
