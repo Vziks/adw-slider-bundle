@@ -63,6 +63,7 @@ class LoadSliderData extends AbstractFixture implements OrderedFixtureInterface,
 
                 $PositionedSlideMedia = new Slide($media , rand(0, 5));
                 $PositionedSlideMedia->setName($faker->jobTitle);
+                $PositionedSlideMedia->setStatus(Slide::STATUS_SHOW);
 
                 $slider->addSlide($PositionedSlideMedia);
 

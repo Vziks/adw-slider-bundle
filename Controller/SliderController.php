@@ -21,11 +21,4 @@ class SliderController extends Controller
         return $this->render('ADWSliderBundle:Default:index.html.twig');
     }
 
-    /**
-     * @Route("/slider/")
-     */
-    public function sliderAction()
-    {
-        return $this->render('ADWSliderBundle:Default:index.html.twig');
-    }
 }

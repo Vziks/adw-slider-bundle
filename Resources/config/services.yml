@@ -14,12 +14,16 @@ services:
             - { name: sonata.admin, manager_type: orm, group: "Slider", label: Slide }
         calls:
             - [setServiceContainer, ["@service_container"]]
+            - [setTemplate, [edit, "ADWSliderBundle:Admin/CRUD:edit.html.twig"]]
 
     adw_slider.repository.slider_repository:
         class: Doctrine\ORM\EntityRepository
         factory: ["@doctrine.orm.entity_manager", getRepository]
         arguments:
             - "ADW\\SliderBundle\\Entity\\Slider"
+        calls:
+            - [ setTokenStorage, ["@security.token_storage"]]
+            - [ setServiceContainer, ["@service_container"]]
 
     adw.slider.extension:
         class: ADW\SliderBundle\Twig\Extension\SliderExtension

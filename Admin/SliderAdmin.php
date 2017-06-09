@@ -67,26 +67,32 @@ class SliderAdmin extends AbstractAdmin
     protected function configureFormFields(FormMapper $formMapper)
     {
         $formMapper
-
+            ->with('Publish Workflow', ['tab' => false])
             ->add('name')
             ->add('sysName')
             ->add('description')
+            ->end()
+            ->with('Publish Workflow')
             ->add('slides',
                 'sonata_type_collection',
-                array(
+                [
                     'label'        => 'Слайды',
                     'required'     => false,
                     'by_reference' => false,
                     'btn_add'      => 'Добавить слайд',
-                ),
-                array(
+
+                ],
+                [
                     'edit'         => 'inline',
+//                    'edit'         => 'table',
                     'allow_delete' => true,
-                    'sortable' => 'sort',
-                )
+                    'sortable' => 'sort'
+                ]
             )
             ->end()
+            ->end()
         ;
+
     }
 
 
@@ -110,5 +116,14 @@ class SliderAdmin extends AbstractAdmin
         );
         return parent::getFilterParameters();
     }
+
+    public function getFormTheme()
+    {
+        return array_merge(
+            parent::getFormTheme(),
+            array('ADWSliderBundle:Admin/CRUD:form_admin_fields.html.twig')
+        );
+    }
+
 
 }

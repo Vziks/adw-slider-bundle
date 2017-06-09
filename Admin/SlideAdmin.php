@@ -13,6 +13,7 @@ use Sonata\AdminBundle\Show\ShowMapper;
 use Sonata\CoreBundle\Model\Metadata;
 use Sonata\AdminBundle\Route\RouteCollection;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\RadioType;
 
 /**
  * Class SliderAdmin
@@ -37,8 +38,7 @@ class SlideAdmin extends AbstractAdmin
     {
         $datagridMapper
             ->add('id')
-            ->add('name')
-        ;
+            ->add('name');
     }
 
     /**
@@ -49,6 +49,8 @@ class SlideAdmin extends AbstractAdmin
         $listMapper
             ->add('id')
             ->add('name')
+            ->add('status')
+            ->add('type')
             ->add('_action', 'actions', array(
                 'actions' => array(
                     'edit' => array(),
@@ -63,31 +65,83 @@ class SlideAdmin extends AbstractAdmin
     protected function configureFormFields(FormMapper $formMapper)
     {
 
-        $context = $this->container->getParameter( 'adw_slider.media_context' );
+        $context = $this->container->getParameter('adw_slider.media_context');
 
         $formMapper
-            ->add('name')
-            ->add('media', 'sonata_media_type', array(
-                    'label'    => 'Изображение',
-                    'provider' => 'sonata.media.provider.image',
-                    'context'  => $context,
-                    'required' => false
-                )
-            )
-            ->add('sort', 'hidden')
-            ->add('url')
-            ->add('text')
-            ->add('delay')
-            ->add('status', ChoiceType::class, [
+            ->add('name', null, [
+                'attr' => [
+                    'class' => 'name'
+                ]
+            ])
+            ->add('status', 'choice', [
                 'choices' => [
-                    Slide::STATUS_SHOW => 'Показывать',
-                    Slide::STATUS_TIME => 'Показывать по времени',
-                    Slide::STATUS_HIDE => 'Скрыть'
+                    Slide::STATUS_SHOW => 'Показывается',
+                    Slide::STATUS_TIME => 'Временный показ',
+                    Slide::STATUS_HIDE => 'Скрыт'
+                ],
+                'attr' => [
+                  'class' => 'status'
+                ],
+                'expanded' => true,
+                'multiple' => false,
+                'label' => 'Тип'
+            ])
+            ->add('type', 'choice', [
+                'choices' => [
+                    Slide::TYPE_IMG => 'Картинка со ссылкой',
+                    Slide::TYPE_TEXT => 'HTML-код'
+                ],
+                'expanded' => true,
+                'multiple' => false,
+                'label' => 'Тип слайда'
+            ])
+            ->add('media', 'sonata_media_type', [
+                    'label' => 'Изображение',
+                    'provider' => 'sonata.media.provider.image',
+                    'context' => $context,
+                    'required' => false
+                ]
+            )
+            ->add('url', null, [
+                'label' => 'URL',
+                'attr' => [
+                    'class' => ''
+                ]
+            ])
+            ->add('text', null, [
+//            ->add('text', 'hidden', [
+                'label' => 'HTML-код',
+                'attr' => [
+                    'class' => ''
+                ]
+            ])
+            ->add('sort', 'hidden', [
+                'attr' => [
+                    'class' => ''
+                ]
+            ])
+            ->add('is_user', null , [
+                'label' => 'Только для авторизованных пользователей'
+            ])
+            ->add('delay', null, [
+                'label' => 'Интервал',
+                'attr' => [
+                    'class' => ''
                 ]
             ])
             ->add('publication_start_date', 'sonata_type_datetime_picker', [
+//                'format' => 'YYYY-MM-DD HH:MM:SS',
+                'required' => false,
+                'attr' => [
+                    'class' => 'sonata_type_datetime_picker'
+                ]
             ])
             ->add('publication_end_date', 'sonata_type_datetime_picker', [
+//                'format' => 'YYYY-MM-DD HH:MM:SS',
+                'required' => false,
+                'attr' => [
+                    'class' => 'sonata_type_datetime_picker'
+                ]
             ])
             ->end()
         ;
@@ -99,7 +153,7 @@ class SlideAdmin extends AbstractAdmin
      */
     public function toString($object)
     {
-        return $object ? $object->getName() : 'Slider';
+        return $object ? $object->getName() : 'Slide';
     }
 
 
@@ -114,5 +168,6 @@ class SlideAdmin extends AbstractAdmin
         );
         return parent::getFilterParameters();
     }
+
 
 }

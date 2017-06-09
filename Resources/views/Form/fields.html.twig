@@ -1,0 +1,6 @@
+{% extends '@SonataAdmin/Form/form_admin_fields.html.twig' %}
+{%- block checkbox_widget -%}
+    <label for="{{ id }}">{{ translation_domain is same as(false) ? label : label|trans({}, translation_domain) }}
+        <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+        </label>
+{%- endblock checkbox_widget -%}

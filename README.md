@@ -35,7 +35,11 @@ class AppKernel extends Kernel
             ...
         );
 ```
+Install asset
 
+```
+$ php app/console asset:install
+```
 
 Routing
 

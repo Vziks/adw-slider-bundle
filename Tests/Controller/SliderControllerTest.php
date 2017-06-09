@@ -35,7 +35,7 @@ class SliderControllerTest extends WebTestCase
 
         $this->assertGreaterThan(
             0,
-            $crawler->filter('div.image')->count()
+            $crawler->filter('div.slider__item')->count()
         );
 
         return $client;

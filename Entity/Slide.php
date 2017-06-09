@@ -22,6 +22,9 @@ class Slide
     const STATUS_TIME = 'time';
     const STATUS_HIDE = 'hide';
 
+    const TYPE_IMG = 'img';
+    const TYPE_TEXT = 'text';
+
     use Sortable;
     use AdvancedPublicationTrait;
 
@@ -81,6 +84,21 @@ class Slide
      * @ORM\Column(type="string", length=4)
      */
     protected $status = Slide::STATUS_HIDE;
+
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="string", length=4)
+     */
+    protected $type = Slide::TYPE_IMG;
+
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    protected $is_user = false;
+
 
     /**
      * PositionedSlideMedia constructor.
@@ -244,6 +262,40 @@ class Slide
         return $this;
     }
 
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
 
+    /**
+     * @param string $type
+     * @return Slide
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsUser()
+    {
+        return $this->is_user;
+    }
+
+    /**
+     * @param mixed $is_user
+     * @return Slide
+     */
+    public function setIsUser($is_user)
+    {
+        $this->is_user = $is_user;
+        return $this;
+    }
 
 }
