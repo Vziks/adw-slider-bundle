@@ -24,6 +24,7 @@ class ADWSliderExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $container->setParameter( 'adw_slider.media_context', $config[ 'media_context' ] );
+//        $container->setParameter('adw_slider.strateges', $config['strateges']);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');

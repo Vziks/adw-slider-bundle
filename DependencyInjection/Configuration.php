@@ -25,9 +25,22 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('media_context')
-                    ->defaultValue('default')
+                    ->defaultValue('slider')
                 ->end()
-            ->end();
+            ->end()
+//            ->children()
+//            ->arrayNode('strateges')
+//            ->prototype('scalar')->end()
+//                    ->defaultValue(
+//                        [
+//                            'ADW\SliderBundle\CityStrategy\MoscowCityStrategy',
+//                            'ADW\SliderBundle\CityStrategy\SaintPetersburgCityStrategy'
+//                        ]
+//                    )
+//            ->end()
+//            ->end()
+        ;
+
 
         return $treeBuilder;
     }

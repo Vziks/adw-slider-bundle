@@ -25,14 +25,14 @@ class LoadSonataMediaData extends AbstractFixture implements OrderedFixtureInter
     public function load(ObjectManager $manager)
     {
         $context = new Context();
-        $context->setId('default');
-        $context->setName('default');
+        $context->setId('slider');
+        $context->setName('slider');
         $context->setEnabled(true);
         $manager->persist($context);
         $manager->flush();
 
         $category = new Category();
-        $category->setName('Default');
+        $category->setName('Slider');
         $category->setContext($context);
         $category->setEnabled(true);
         $manager->persist($category);

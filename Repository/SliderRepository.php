@@ -59,7 +59,6 @@ class SliderRepository extends EntityRepository
 
 //        $userIp = $this->getUserIp();
 //
-//        dump($userIp);
 //
 //        if ($userIp == '127.0.0.1') {
 //
@@ -69,26 +68,32 @@ class SliderRepository extends EntityRepository
 //            ];
 //
 //            $userIp = $testIp[mt_rand(0, count($testIp) - 1)];
-//
 //        }
-
-////        $userGeo = $this->container->get('adw.geoip.handler')->getLocation($userIp);
 //
 //        $randoms = $this->getRandomIps(25);
 //
 //        foreach ($randoms as $random) {
-//            $userGeo = $this->container->get('adw.geoip.handler')->getCity($random);
-//            dump($userGeo);
+//
+//                    $userGeoBaze = $this->container->get('adw.geoip.provider.geobaze')->findLocationByIp($random);
+//
+//                    $userIpGeoBaze = $this->container->get('adw.geoip.provider.ipgeobaze')->findLocationByIp($random);
+//
+//            if($userGeoBaze && $userIpGeoBaze) {
+//
+//                dump($random);
+//
+//                dump($userGeoBaze->toArray());
+//
+//                dump($userIpGeoBaze->toArray());
+//;
+//                dump('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+//            }
+//
+//
 //        }
 //
-////        $userGeo = $this->container->get('adw.geoip.handler')->getCity($userIp);
-//
-////        dump($userIp);
-////        dump($userGeo->toArray());
-////        dump($userGeo);
 //        die;
 
-//        $userGeo = $this->container->get('adw.geoip.handler')->getCity($userIp);
 
         $criterias = [];
 

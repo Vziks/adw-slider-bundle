@@ -56,7 +56,7 @@ class LoadSliderData extends AbstractFixture implements OrderedFixtureInterface,
                 $media = new Media();
 
                 $media->setBinaryContent($faker->image($dir = '/tmp', $width = 100, $height = 100, 'people'));
-                $media->setContext('default');
+                $media->setContext('slider');
                 $media->setProviderName('sonata.media.provider.image');
                 $media->setEnabled(true);
                 $mediaManager->save($media, true);

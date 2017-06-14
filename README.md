@@ -6,10 +6,8 @@ Add repository
 
 ```
 "repositories": [
-    {
-      "type": "vcs", "url": "https://bitbucket.org/prodhub/adw-geoip-bundle.git",
-      "type": "vcs", "url": "https://bitbucket.org/prodhub/slider-bundle.git"
-    }
+    {"type": "vcs", "url": "https://bitbucket.org/prodhub/adw-geoip-bundle.git"},
+    {"type": "vcs", "url": "https://bitbucket.org/prodhub/slider-bundle.git"}    
 ]
 ```
 
@@ -70,7 +68,18 @@ Config
 ```
  Если требуется сохранять под определенным контекстом sonata-media, по умолчанию контекст 'default' 
 adw_slider:
-    media_context: <имя контекста для sonata-media>    
+    media_context: slider
+        
+# Sonata Media Configuration
+sonata_media:
+        slider:  # the slider context is mandatory
+            providers:                
+                - sonata.media.provider.image                
+
+            formats:
+                small: { width: 100 , quality: 70}
+                big:   { width: 500 , quality: 70}        
+        
 ```
 
 ### Usage Twig ###
