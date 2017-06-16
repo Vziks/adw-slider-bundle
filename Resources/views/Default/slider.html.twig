@@ -4,11 +4,17 @@
         {% for slide in slider.slides  %}
             <div class="slider__item" data-time="{{ slide.delay * 1000 }}">
                 <span class="slider__title">Слайд {{ loop.index }}, показываем его
-                    <span class="slider__time">{{ slide.delay }}сек</span>
+                    <span class="slider__time">{{ slide.delay }} сек</span>
                 </span>
-                <a href="{{ slide.url }}">
-                    <img src="{% path slide.media, 'reference' %}">
-                </a>
+                {# //content img in a <tag>  or html-code #}
+                {% if slide.type == 'text' %}
+                    {{ slide.text|raw }}
+                {% else %}
+                    <a href="{{ slide.url }}">
+                        <img src="{% path slide.media, 'reference' %}">
+                    </a>
+                {% endif %}
+                {# //content img in a <tag>  or html-code #}
                 <span class="slider__descr">{{ slide.name }}</span>
             </div>
         {% endfor %}
