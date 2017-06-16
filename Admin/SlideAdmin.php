@@ -68,27 +68,18 @@ class SlideAdmin extends AbstractAdmin
         $context = $this->container->getParameter('adw_slider.media_context');
 
         $formMapper
+            ->with('Publish Workflow', ['tab' => true])
             ->add('name', null, [
                 'attr' => [
                     'class' => 'name'
-                ]
-            ])
-            ->add('status', 'choice', [
-                'choices' => [
-                    Slide::STATUS_SHOW => 'Показывается',
-                    Slide::STATUS_TIME => 'Временный показ',
-                    Slide::STATUS_HIDE => 'Скрыт'
                 ],
-                'attr' => [
-                  'class' => 'status'
-                ],
-                'expanded' => true,
-                'multiple' => false,
-                'label' => 'Тип'
+                'label' => 'Название'
             ])
+            ->end()
+            ->with('1')
             ->add('type', 'choice', [
                 'choices' => [
-                    Slide::TYPE_IMG => 'Картинка со ссылкой',
+                    Slide::TYPE_IMG => 'Картинка и ссылка',
                     Slide::TYPE_TEXT => 'HTML-код'
                 ],
                 'expanded' => true,
@@ -110,37 +101,55 @@ class SlideAdmin extends AbstractAdmin
             ])
             ->add('text', null, [
 //            ->add('text', 'hidden', [
-                'label' => 'HTML-код',
+//                'label' => 'HTML-код',
                 'attr' => [
                     'class' => ''
                 ]
             ])
+            ->end()
             ->add('sort', 'hidden', [
                 'attr' => [
                     'class' => ''
                 ]
             ])
+            ->end()
+            ->with('2')
+            ->add('status', 'choice', [
+                'choices' => [
+                    Slide::STATUS_SHOW => 'Показывается',
+                    Slide::STATUS_TIME => 'Временный показ',
+                    Slide::STATUS_HIDE => 'Скрыт'
+                ],
+                'attr' => [
+                    'class' => 'status'
+                ],
+                'expanded' => true,
+                'multiple' => false,
+                'label' => 'Показ в баннере'
+            ])
             ->add('is_user', null , [
                 'label' => 'Только для авторизованных пользователей'
-            ])
-            ->add('delay', null, [
-                'label' => 'Интервал',
-                'attr' => [
-                    'class' => ''
-                ]
             ])
             ->add('publication_start_date', 'sonata_type_datetime_picker', [
 //                'format' => 'YYYY-MM-DD HH:MM:SS',
                 'required' => false,
                 'attr' => [
                     'class' => 'sonata_type_datetime_picker'
-                ]
+                ],
+                'label' => 'Даты и время показа по Мск'
             ])
             ->add('publication_end_date', 'sonata_type_datetime_picker', [
 //                'format' => 'YYYY-MM-DD HH:MM:SS',
                 'required' => false,
                 'attr' => [
                     'class' => 'sonata_type_datetime_picker'
+                ],
+                'label' => ''
+            ])
+            ->add('delay', null, [
+                'label' => 'Интервал (сек)',
+                'attr' => [
+                    'class' => ''
                 ]
             ])
             ->end()

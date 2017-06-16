@@ -1,0 +1,251 @@
+/*custom admin styles (for slider)*/
+
+.admin-custom .tab-content {
+	position: relative;
+}
+
+.admin-custom .tab-content:last-of-type {
+	margin-bottom: 20px;
+}
+
+.admin-custom__tr {
+	border-bottom: 1px solid #d7d7d7;
+}
+
+.admin-custom__tr th {
+	height: 45px;
+	overflow: hidden;
+}
+
+.admin-custom__tr img {
+	display: block;
+	max-height: 80%;
+}
+
+.admin-custom .ui-icon {
+	margin-right: 10px;
+	margin-left: auto;
+	cursor: pointer;
+}
+
+.admin-custom__tr .ui-icon-grip-solid-horizontal {
+	display: none;
+}
+
+.admin-custom__tr:hover {
+	background-color: #e8e8e8;
+	cursor: pointer;
+}
+
+.admin-custom__del {
+	display: none;
+}
+
+.admin-custom__tr_header {
+	border-bottom: 1px solid #000000;
+}
+
+.admin-custom__tr_header:hover {
+	background-color: transparent;
+}
+
+.admin-custom .admin-custom__arrows {
+	display: none;
+}
+
+.admin-custom .tab-content .tab-pane,
+.admin-custom .tab-content .admin-custom__del {
+	display: none;
+}
+
+.admin-custom .tab-content.active {
+	font-size: 0;
+	background-color: #e8e8e8;
+}
+
+.admin-custom .tab-content.active .admin-custom__arrows {
+	font-size: 14px;
+	line-height: 1;
+	display: inline-block;
+	position: absolute;
+	left: 16px;
+	top: 10px;
+	width: 14px;
+}
+
+.admin-custom .admin-custom__arrow {
+	cursor: pointer;
+}
+
+.admin-custom .admin-custom__arrow:hover {
+	color: #3c8dbc;
+}
+
+.admin-custom .admin-custom__arrow_up {
+
+}
+
+.admin-custom .admin-custom__arrow_down {
+
+}
+
+.admin-custom .tab-content.active .admin-custom__tr {
+	font-size: 14px;
+}
+
+.admin-custom .tab-content.active .ui-icon-grip-solid-horizontal {
+	display: block;
+}
+
+.admin-custom .tab-content.active .ui-icon-trash {
+	display: none;
+}
+
+.admin-custom .tab-content.active .tab-pane,
+.admin-custom .tab-content.active .admin-custom__del {
+	display: block;
+	font-size: 14px;
+}
+
+.admin-custom .tab-content.active .admin-custom__del {
+	display: inline-block;
+	position: absolute;
+	bottom: 14px;
+	right: 1px;
+}
+
+.admin-custom .icheckbox_square-blue + label {
+	margin-left: 10px;
+	margin-bottom: 0;
+	vertical-align: middle;
+}
+
+.admin-custom .tab-content.active .tab-pane {
+	float: left;
+	padding-left: 65px;
+}
+
+.admin-custom .tab-content.active:before {
+	content: "";
+	display: table;
+}
+
+.admin-custom .tab-content.active:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.admin-custom .admin-custom__position {
+	padding-left: 40px;
+}
+
+.admin-custom .tab-content.active .admin-custom__tr {
+	border-bottom: none;
+}
+
+.admin-custom .tab-content.active .admin-custom__tr:hover {
+	background-color: transparent;
+}
+
+.admin-custom .tab-content.active .tab-pane {
+	display: inline-block;
+	font-size: 14px;
+	width: 50%;
+}
+
+.admin-custom .tab-content.active .tab-pane:first-of-type {
+	width: 100%;
+}
+
+.admin-custom .tab-content.active .admin-custom__img-preview {
+	display: none;
+}
+
+.admin-custom .tab-content.active .admin-custom__time {
+	display: none;
+}
+
+.admin-custom .tab-content.active .admin-custom__slide-name {
+	display: none;
+}
+
+.admin-custom .form-group .list-unstyled li {
+	display: inline-block;
+	margin-right: 20px;
+}
+
+.admin-custom .form-group .radio {
+	display: inline-block;
+}
+
+.admin-custom .form-group .iradio_square-blue {
+	margin-right: 10px;
+}
+
+.admin-custom .form-group .control-label {
+	color: #656565;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] {
+	height: 350px;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] .media-object {
+	max-height: 200px;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] .row:first-of-type .col-md-4 {
+	width: 100%;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] .row:first-of-type .col-md-3,
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] .row:first-of-type .col-md-2 {
+	display: none;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] .row:last-of-type .col-md-3 {
+	display: none;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] .row:last-of-type .col-md-2 {
+	width: 100%;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-delay"] input {
+	width: 100px;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-text"] textarea {
+	height: 384px;
+	max-height: 384px;
+	resize: none;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-publication_start_date"],
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-publication_end_date"] {
+	float: left;
+	display: inline-block;
+	width: 200px;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-delay"] {
+	clear: both;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-publication_start_date"] {
+	position: relative;
+	margin-right: 20px;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-publication_end_date"] label {
+	text-indent: -99999px;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-publication_start_date"]:after {
+	position: absolute;
+	top: 40%;
+	right: -16px;
+	content: '\2014';
+	font-size: 14px;
+}

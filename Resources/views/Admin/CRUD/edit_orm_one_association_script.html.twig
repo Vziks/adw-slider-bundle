@@ -26,6 +26,8 @@ This code manage the one-to-many association field popup
         // handle the add link
         var field_add_{{ id }} = function(event) {
 
+        	var that = this;
+
             event.preventDefault();
             event.stopPropagation();
 
@@ -43,7 +45,12 @@ This code manage the one-to-many association field popup
                 type: "POST",
                 dataType: 'html',
                 data: { _xml_http_request: true },
+                beforeSend: function () {
+	                jQuery(that).addClass('is-loading');
+                },
                 success: function(html) {
+	                jQuery(that).removeClass('is-loading');
+
                     if (!html.length) {
                         return;
                     }
@@ -58,6 +65,9 @@ This code manage the one-to-many association field popup
                     }
                     jQuery('#sonata-ba-field-container-{{ id }}').trigger('sonata.add_element');
                     jQuery('#field_container_{{ id }}').trigger('sonata.add_element');
+
+                    var tabs = jQuery('.admin-custom__table', '.admin-custom');
+                    jQuery(tabs[tabs.length - 1]).trigger('click');
                 }
             });
 

@@ -9,52 +9,64 @@ file that was distributed with this source code.
 
 #}
 
+<link rel="stylesheet" href="{{ asset('bundles/adwslider/css/slider.css') }}">
+<script src="{{ asset('bundles/adwslider/js/slider.js') }}"></script>
+
 {% form_theme form 'ADWSliderBundle:Form:fields.html.twig' %}
 
-<div class="sonata-ba-tabs">
-    {% for nested_group_field in form.children %}
-        <div>
-            <div class="nav-tabs-custom">
-                <ul class="nav nav-tabs">
-                    {% for name, form_group in associationAdmin.formgroups %}
-                        <li class="{% if loop.first %}active{% endif %}">
-                            <a
-                                    href="#{{ associationAdmin.uniqid }}_{{ loop.parent.loop.index }}_{{ loop.index }}"
-                                    data-toggle="tab"
-                            >
-                                <i class="icon-exclamation-sign has-errors hide"></i>
-                                {{ associationAdmin.trans(name, {}, form_group.translation_domain) }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
+<div class="admin-custom">
+	<table class="admin-custom__table" width="100%">
+        <tr class="admin-custom__tr admin-custom__tr_header">
+            <th width="20%" style="padding-left: 40px;" colspan="2">Порядок показа</th>
+            <th width="20%">Превью</th>
+            <th width="55%">Название</th>
+            <th width="5%"></th>
+        </tr>
+	</table>
+    <div class="sonata-ba-tabs">
+        {% for nested_group_field in form.children %}
 
-                <div class="tab-content">
-                    {% for name, form_group in associationAdmin.formgroups %}
-                        <div
-                                class="tab-pane {% if loop.first %}active{% endif %}"
-                                id="{{ associationAdmin.uniqid }}_{{ loop.parent.loop.index }}_{{ loop.index }}"
-                        >
-                            <fieldset>
-                                <div class="sonata-ba-collapsed-fields">
-                                    {% for field_name in form_group.fields %}
-                                        {% set nested_field = nested_group_field.children[field_name] %}
-                                        <div class="sonata-ba-field-{{ id }}-{{ field_name }}">
-                                            {{ form_row(nested_field) }}
-                                            {#{{ form_label(nested_field) }}#}
-                                            {#{{ form_errors(nested_field) }}#}
-                                            {#{{ form_widget(nested_field) }}#}
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </fieldset>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% if nested_group_field['_delete'] is defined %}
-                {{ form_row(nested_group_field['_delete'], {'label': 'action_delete','translation_domain': 'SonataAdminBundle'}) }}
-            {% endif %}
-        </div>
-    {% endfor %}
+                    <div class="tab-content">
+                        <span class="admin-custom__arrows">
+                            <span class="admin-custom__arrow admin-custom__arrow_up">▲</span>
+                            <span class="admin-custom__arrow admin-custom__arrow_down">▼</span>
+                        </span>
+
+                        <table class="admin-custom__table" width="100%">
+                            <tr class="admin-custom__tr">
+                                <th width="4%" class="admin-custom__position">{{ loop.index }}</th>
+                                <th width="16%" class="admin-custom__time"><span></span></th>
+                                <th width="20%" class="admin-custom__img-preview"><img src=""></th>
+                                <th width="55%" class="admin-custom__slide-name"><span></span></th>
+                                <th width="5%">
+                                    <span class="ui-icon ui-icon-grip-solid-horizontal"></span>
+                                    <span class="ui-icon ui-icon-trash"></span>
+                                </th>
+                            </tr>
+                        </table>
+
+                        {% for name, form_group in associationAdmin.formgroups %}
+                            <div
+                                    class="tab-pane"
+                                    id="{{ associationAdmin.uniqid }}_{{ loop.parent.loop.index }}_{{ loop.index }}"
+                            >
+                                <fieldset>
+                                    <div class="sonata-ba-collapsed-fields">
+                                        {% for field_name in form_group.fields %}
+                                            {% set nested_field = nested_group_field.children[field_name] %}
+                                            <div class="sonata-ba-field-{{ id }}-{{ field_name }}">
+                                                {{ form_row(nested_field) }}
+                                                {#{{ form_label(nested_field) }}#}
+                                                {#{{ form_errors(nested_field) }}#}
+                                                {#{{ form_widget(nested_field) }}#}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </fieldset>
+                            </div>
+                        {% endfor %}
+                        <span class="ui-icon ui-icon-trash admin-custom__del"></span>
+                    </div>
+        {% endfor %}
+    </div>
 </div>
