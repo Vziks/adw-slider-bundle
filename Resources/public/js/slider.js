@@ -77,7 +77,11 @@ jQuery(document).ready(function() {
 
 		jQuery(slideTypeBtns2).click(function (e) {
 			slideType = jQuery("input[name*='[type]']:checked", tab).val();
+			var slideStatus = jQuery("input[name*='[status]']:checked", tab).val();
+
 			toggleTypeContainer(slideType, tab);
+			toggleTimeContainer(slideStatus, tab);
+
 		});
 
 		var slideTimeBtns = jQuery("label[for*='_status']", tab);
