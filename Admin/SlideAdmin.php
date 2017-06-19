@@ -75,6 +75,11 @@ class SlideAdmin extends AbstractAdmin
                 ],
                 'label' => 'Название'
             ])
+            ->add('citys', 'sonata_type_model_autocomplete', [
+                'property' => "name",
+                'multiple' => true,
+                'label' => '   Показывать только для городов'
+            ])
             ->end()
             ->with('1')
             ->add('type', 'choice', [

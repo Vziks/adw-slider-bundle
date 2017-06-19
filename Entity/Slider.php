@@ -40,6 +40,23 @@ class Slider
     protected $name;
 
     /**
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    protected $is_show = false;
+
+    /**
+     * @var int
+     * @ORM\Column(type="integer")
+     */
+    protected $height;
+
+    /**
+     * @var int
+     * @ORM\Column(type="integer")
+     */
+    protected $width;
+
+    /**
      * @var string
      *
      * @ORM\Column(type="string")
@@ -53,13 +70,11 @@ class Slider
      */
     protected $sysName;
 
-
     /**
      * @ORM\OneToMany(targetEntity="ADW\SliderBundle\Entity\Slide", mappedBy="slider", cascade={"persist", "remove"}, orphanRemoval=true)
      * @Orm\OrderBy({"sort" = "ASC"})
      */
     private $slides;
-
 
     /**
      * Slider constructor.
@@ -176,6 +191,58 @@ class Slider
         return $this->slides;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getIsShow()
+    {
+        return $this->is_show;
+    }
 
+    /**
+     * @param mixed $is_show
+     * @return Slider
+     */
+    public function setIsShow($is_show)
+    {
+        $this->is_show = $is_show;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getHeight()
+    {
+        return $this->height;
+    }
+
+    /**
+     * @param int $height
+     * @return Slider
+     */
+    public function setHeight($height)
+    {
+        $this->height = $height;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getWidth()
+    {
+        return $this->width;
+    }
+
+    /**
+     * @param mixed $width
+     * @return Slider
+     */
+    public function setWidth($width)
+    {
+        $this->width = $width;
+        return $this;
+    }
 
 }

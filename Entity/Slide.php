@@ -3,8 +3,10 @@ namespace ADW\SliderBundle\Entity;
 
 use ADW\CommonBundle\Model\AdvancedPublicationTrait;
 use Application\Sonata\MediaBundle\Entity\Media;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Knp\DoctrineBehaviors\Model\Sortable\Sortable;
+
 
 /**
  * Class PositionedSlideMedia
@@ -98,6 +100,14 @@ class Slide
      * @ORM\Column(type="boolean", nullable=false)
      */
     protected $is_user = false;
+
+
+    /**
+     * @var City[]|ArrayCollection
+     *
+     * @ORM\ManyToMany(targetEntity="ADW\SliderBundle\Entity\City")
+     */
+    protected $citys;
 
 
     /**
@@ -297,5 +307,48 @@ class Slide
         $this->is_user = $is_user;
         return $this;
     }
+
+    /**
+     * Add city
+     *
+     * @param \ADW\SliderBundle\Entity\City $city
+     *
+     * @return Slide
+     */
+    public function addTag(\ADW\SliderBundle\Entity\City $city)
+    {
+        $this->citys[] = $city;
+
+        return $this;
+    }
+
+    /**
+     * Remove city
+     *
+     * @param \ADW\SliderBundle\Entity\City $city
+     */
+    public function removeTag(\ADW\SliderBundle\Entity\City $city)
+    {
+        $this->citys->removeElement($city);
+    }
+
+    /**
+     * @return City[]|ArrayCollection
+     */
+    public function getCitys()
+    {
+        return $this->citys;
+    }
+
+    /**
+     * @param City[]|ArrayCollection $citys
+     * @return Slide
+     */
+    public function setCitys($citys)
+    {
+        $this->citys = $citys;
+        return $this;
+    }
+
 
 }

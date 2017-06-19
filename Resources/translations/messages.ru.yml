@@ -1,5 +1,7 @@
 Publish Workflow: Слайдер
+Description:  Описание
 Name: Имя
+Text: Текст
 Sys Name: Системное Имя
 Image Workflow.Slide: Картинка
 Data Workflow.Slide: Инфо
@@ -7,5 +9,11 @@ Status: Статус
 Delay: Задержка
 Publication Start Date: Дата начала
 Publication End Date: Дата окончания
+Publication end date: Дата окончания
 Slider: Слайдер
+Slider List: Список слайдеров
 Slide: Слайд
+Width: Ширина
+Height: Высота
+Is Show: Выключить баннер место
+City: Город

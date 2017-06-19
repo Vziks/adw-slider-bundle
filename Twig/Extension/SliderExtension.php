@@ -55,10 +55,13 @@ class SliderExtension extends \Twig_Extension
      */
     public function adw_slider($sysName = 'slidermain', $template = 'ADWSliderBundle:Default:slider.html.twig')
     {
+        /**
+         * @var Slider $slider
+         */
         $slider = $this->sliderRepository->getSlider($sysName);
 
         return $this->container->get('templating')->render($template, [
-            'slider' => $slider
+            'slider' => ($slider && !$slider->getIsShow() ? $slider: NULL)
         ]);
 
     }

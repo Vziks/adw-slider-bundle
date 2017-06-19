@@ -2,8 +2,10 @@
 
 namespace ADW\SliderBundle\Repository;
 
+use ADW\SliderBundle\Entity\City;
 use ADW\SliderBundle\Traits\AdminServiceContainerTrait;
 use ADW\SliderBundle\Traits\RepositoryTokenStorageTrait;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -53,83 +55,82 @@ class SliderRepository extends EntityRepository
     public function getSlider($sysName)
     {
 
+        $city = null;
+
         $qb = $this->createQueryBuilder('s');
 
-        $usr = $this->tokenStorage->getToken()->getUser();
+        $user = $this->tokenStorage->getToken()->getUser();
 
-//        $userIp = $this->getUserIp();
-//
-//
-//        if ($userIp == '127.0.0.1') {
-//
-//            $testIp = [
-//                '185.22.181.170',
-//                '79.142.82.62'
-//            ];
-//
-//            $userIp = $testIp[mt_rand(0, count($testIp) - 1)];
-//        }
-//
-//        $randoms = $this->getRandomIps(25);
-//
-//        foreach ($randoms as $random) {
-//
-//                    $userGeoBaze = $this->container->get('adw.geoip.provider.geobaze')->findLocationByIp($random);
-//
-//                    $userIpGeoBaze = $this->container->get('adw.geoip.provider.ipgeobaze')->findLocationByIp($random);
-//
-//            if($userGeoBaze && $userIpGeoBaze) {
-//
-//                dump($random);
-//
-//                dump($userGeoBaze->toArray());
-//
-//                dump($userIpGeoBaze->toArray());
-//;
-//                dump('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-//            }
-//
-//
-//        }
-//
-//        die;
+        $userIp = $this->getUserIp();
 
+
+        $userCity = $this->container->get('adw.geoip.handler')->getCity($userIp);
+
+        if($userCity) {
+            /**
+             * @var EntityManager $em
+             */
+            $em = $this->container->get('doctrine.orm.default_entity_manager');
+            /**
+             * @var City $city
+             */
+            $city = $em->getRepository('ADWSliderBundle:City')->findOneBy(['name' => $userCity]);
+        }
 
         $criterias = [];
 
         $qb
-            ->select('s', 'sl')
+            ->select('s', 'sl', 'ct')
             ->join('s.slides', 'sl')
+            ->leftJoin('sl.citys', 'ct')
             ->where($qb->expr()->eq('s.sysName', ':sName'));
 
         $criterias[] = $qb->expr()->andx(
-            $qb->expr()->neq('sl.status', ':hidestatus'),
             $qb->expr()->eq('sl.status', ':showstatus'),
-            ($usr ? $qb->expr()->eq('sl.is_user', 0): $qb->expr()->eq('sl.is_user', 1))
+            ($user ? $qb->expr()->eq('sl.is_user', 0): $qb->expr()->eq('sl.is_user', 1)),
+            $qb->expr()->isNull('ct.prefix')
         );
 
+        if($city && $city->getPrefix()) {
+            $criterias[] = $qb->expr()->andx(
+                $qb->expr()->eq('sl.status', ':showstatus'),
+                ($user ? $qb->expr()->eq('sl.is_user', 0) : $qb->expr()->eq('sl.is_user', 1)),
+                $qb->expr()->eq('ct.prefix', ':city')
+            );
+        }
+
         $criterias[] = $qb->expr()->andx(
-            $qb->expr()->neq('sl.status', ':hidestatus'),
             $qb->expr()->eq('sl.status', ':timestatus'),
             $qb->expr()->lte('sl.publicationStartDate', ':cdate'),
             $qb->expr()->gte('sl.publicationEndDate', ':cdate'),
-            ($usr ? $qb->expr()->eq('sl.is_user', 0): $qb->expr()->eq('sl.is_user', 1))
+            ($user ? $qb->expr()->eq('sl.is_user', 0): $qb->expr()->eq('sl.is_user', 1)),
+            $qb->expr()->isNull('ct.prefix')
         );
 
+        if($city && $city->getPrefix()) {
+            $criterias[] = $qb->expr()->andx(
+                $qb->expr()->eq('sl.status', ':timestatus'),
+                $qb->expr()->lte('sl.publicationStartDate', ':cdate'),
+                $qb->expr()->gte('sl.publicationEndDate', ':cdate'),
+                ($user ? $qb->expr()->eq('sl.is_user', 0) : $qb->expr()->eq('sl.is_user', 1)),
+                $qb->expr()->eq('ct.prefix', ':city')
+            );
+        }
         $where = \call_user_func_array([$qb->expr(), "orx"], $criterias);
 
         $qb->andWhere($where);
 
-        $qb->setParameter('hidestatus', 'hide');
         $qb->setParameter('showstatus', 'show');
         $qb->setParameter('timestatus', 'time');
+        if($city && $city->getPrefix()) {
+            $qb->setParameter('city', $city->getPrefix());
+        }
         $qb->setParameter('cdate', new \DateTime());
         $qb->setParameter('sName', $sysName);
 
         $q = $qb->getQuery()->getOneOrNullResult();
 
         return $q;
-
 
     }
 
@@ -147,23 +148,6 @@ class SliderRepository extends EntityRepository
             return $realip;
         }
         return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null;
-    }
-
-
-    public function getRandomIp() {
-        $ip = [];
-        while (count($ip) < 4) {
-            $ip[] = rand(0, 255);
-        }
-        return join('.', $ip);
-    }
-
-    public function getRandomIps($count=1000) {
-        $ips = array();
-        while (count($ips) < $count) {
-            $ips[] = $this->getRandomIp();
-        }
-        return $ips;
     }
 
 }

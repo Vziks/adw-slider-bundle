@@ -39,8 +39,7 @@ class SliderAdmin extends AbstractAdmin
         $datagridMapper
             ->add('id')
             ->add('name')
-            ->add('sysName')
-            ;
+            ->add('sysName');
     }
 
     /**
@@ -66,32 +65,44 @@ class SliderAdmin extends AbstractAdmin
      */
     protected function configureFormFields(FormMapper $formMapper)
     {
+
+        $id = $this->getSubject()->getId();
+
+        $arrayAttr = ['attr' => [
+            'readonly' => true,
+            'disabled' => true
+        ]];
+
         $formMapper
             ->with('Publish Workflow', ['tab' => false])
             ->add('name')
+            ->add('is_show');
+        $formMapper
             ->add('sysName')
-            ->add('description')
+            ->add('description');
+        $formMapper
+            ->add('width', null, ($id && $this->getSubject() instanceof Slider ? $arrayAttr : null))
+            ->add('height', null, ($id && $this->getSubject() instanceof Slider ? $arrayAttr : null));
+        $formMapper
             ->end()
             ->with('Publish Workflow')
             ->add('slides',
                 'sonata_type_collection',
                 [
-                    'label'        => 'Слайды',
-                    'required'     => false,
+                    'label' => 'Слайды',
+                    'required' => false,
                     'by_reference' => false,
-                    'btn_add'      => 'Добавить слайд',
+                    'btn_add' => 'Добавить слайд',
 
                 ],
                 [
-                    'edit'         => 'inline',
-//                    'edit'         => 'table',
+                    'edit' => 'inline',
                     'allow_delete' => true,
                     'sortable' => 'sort'
                 ]
             )
             ->end()
-            ->end()
-        ;
+            ->end();
 
     }
 

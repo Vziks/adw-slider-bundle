@@ -1,9 +1,15 @@
 services:
+    adw.admin.city:
+        class: ADW\SliderBundle\Admin\CityAdmin
+        arguments: [~, ADW\SliderBundle\Entity\City, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: "Баннерокрутилка", label: City }
+
     adw.admin.slider:
         class: ADW\SliderBundle\Admin\SliderAdmin
         arguments: [~, ADW\SliderBundle\Entity\Slider, SonataAdminBundle:CRUD]
         tags:
-            - { name: sonata.admin, manager_type: orm, group: "Slider", label: Slider }
+            - { name: sonata.admin, manager_type: orm, group: "Баннерокрутилка", label: Slider }
         calls:
             - [setServiceContainer, ["@service_container"]]
 
@@ -11,7 +17,7 @@ services:
         class: ADW\SliderBundle\Admin\SlideAdmin
         arguments: [~, ADW\SliderBundle\Entity\Slide, SonataAdminBundle:CRUD]
         tags:
-            - { name: sonata.admin, manager_type: orm, group: "Slider", label: Slide }
+            - { name: sonata.admin, manager_type: orm, group: "Баннерокрутилка", label: Slide }
         calls:
             - [setServiceContainer, ["@service_container"]]
             - [setTemplate, [edit, "ADWSliderBundle:Admin/CRUD:edit.html.twig"]]
