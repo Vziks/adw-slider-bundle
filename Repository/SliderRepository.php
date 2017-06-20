@@ -69,19 +69,15 @@ class SliderRepository extends EntityRepository
 
         $userLocation = $this->container->get('adw.geoip.handler')->getLocation($userIp);
 
-
-
-
         if ($userLocation && $userLocation->getCode() == 'RU') {
 
-            $userCity = $this->container->get('adw.geoip.handler')->getCity('185.22.181.170');
+            $userCity = $this->container->get('adw.geoip.handler')->getCity($userIp);
 
             $relatedCity = $em->getRepository('ADWSliderBundle:RelatedCity')->findOneBy(['prefix' => 'is_' . strtolower($userLocation->getCode()) . '_' . strtolower($this->translit($userCity))]);
             if (!$relatedCity && $userCity) {
                 $relatedCity = new RelatedCity();
                 $relatedCity->setName($userCity);
                 $relatedCity->setPrefix('is_' . strtolower($userLocation->getCode()) . '_' . strtolower($this->translit($userCity)));
-
 
                 $em->persist($relatedCity);
                 $em->flush();
