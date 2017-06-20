@@ -3,11 +3,11 @@
 namespace ADW\SliderBundle\Repository;
 
 use ADW\SliderBundle\Entity\City;
+use ADW\SliderBundle\Entity\RelatedCity;
 use ADW\SliderBundle\Traits\AdminServiceContainerTrait;
 use ADW\SliderBundle\Traits\RepositoryTokenStorageTrait;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * Class SliderRepository
@@ -59,22 +59,38 @@ class SliderRepository extends EntityRepository
 
         $qb = $this->createQueryBuilder('s');
 
-        $user = $this->tokenStorage->getToken()->getUser();
+        $user = $this->getUser();
 
         $userIp = $this->getUserIp();
 
+        $em = $this->getEntityManager();
 
-        $userCity = $this->container->get('adw.geoip.handler')->getCity($userIp);
+        $cityRelated = NULL;
 
-        if($userCity) {
+        $userLocation = $this->container->get('adw.geoip.handler')->getLocation($userIp);
+
+        if ($userLocation && $userLocation->getCode() == 'RU') {
+
+            $userCity = $this->container->get('adw.geoip.handler')->getCity($userIp);
+
+            $relatedCity = $em->getRepository('ADWSliderBundle:RelatedCity')->findOneBy(['prefix' => 'is_' . strtolower($userLocation->getCode()) . '_' . strtolower($this->translit($userCity))]);
+            if (!$relatedCity && $cityRelated->getCity()->getPrefix() && $userCity) {
+                $relatedCity = new RelatedCity();
+                $relatedCity->setName($userCity);
+                $relatedCity->setPrefix('is_' . strtolower($userLocation->getCode()) . '_' . strtolower($this->translit($userCity)));
+
+
+                $em->persist($relatedCity);
+                $em->flush();
+            }
+
+            $userLocationArray = $userLocation->toArray();
+
             /**
-             * @var EntityManager $em
+             * @var City $cityRelated
              */
-            $em = $this->container->get('doctrine.orm.default_entity_manager');
-            /**
-             * @var City $city
-             */
-            $city = $em->getRepository('ADWSliderBundle:City')->findOneBy(['name' => $userCity]);
+            $cityRelated = $em->getRepository('ADWSliderBundle:RelatedCity')->findOneBy(['prefix' => 'is_' . strtolower($userLocation->getCode()) . '_' . strtolower($this->translit($userLocationArray['city']['name']))]);
+
         }
 
         $criterias = [];
@@ -87,44 +103,84 @@ class SliderRepository extends EntityRepository
 
         $criterias[] = $qb->expr()->andx(
             $qb->expr()->eq('sl.status', ':showstatus'),
-            ($user ? $qb->expr()->eq('sl.is_user', 0): $qb->expr()->eq('sl.is_user', 1)),
+            $qb->expr()->eq('sl.is_user', 0),
             $qb->expr()->isNull('ct.prefix')
         );
 
-        if($city && $city->getPrefix()) {
+        if($user) {
             $criterias[] = $qb->expr()->andx(
                 $qb->expr()->eq('sl.status', ':showstatus'),
-                ($user ? $qb->expr()->eq('sl.is_user', 0) : $qb->expr()->eq('sl.is_user', 1)),
+                $qb->expr()->eq('sl.is_user', 1),
+                $qb->expr()->isNull('ct.prefix')
+            );
+        }
+
+        if ($cityRelated && $cityRelated->getCity()) {
+
+            $criterias[] = $qb->expr()->andx(
+                $qb->expr()->eq('sl.status', ':showstatus'),
+                $qb->expr()->eq('sl.is_user', 0),
                 $qb->expr()->eq('ct.prefix', ':city')
             );
+
+            if($user) {
+                $criterias[] = $qb->expr()->andx(
+                    $qb->expr()->eq('sl.status', ':showstatus'),
+                    $qb->expr()->eq('sl.is_user', 1),
+                    $qb->expr()->eq('ct.prefix', ':city')
+                );
+            }
         }
 
         $criterias[] = $qb->expr()->andx(
             $qb->expr()->eq('sl.status', ':timestatus'),
             $qb->expr()->lte('sl.publicationStartDate', ':cdate'),
             $qb->expr()->gte('sl.publicationEndDate', ':cdate'),
-            ($user ? $qb->expr()->eq('sl.is_user', 0): $qb->expr()->eq('sl.is_user', 1)),
+            $qb->expr()->eq('sl.is_user', 0),
             $qb->expr()->isNull('ct.prefix')
         );
-
-        if($city && $city->getPrefix()) {
+        if($user) {
             $criterias[] = $qb->expr()->andx(
                 $qb->expr()->eq('sl.status', ':timestatus'),
                 $qb->expr()->lte('sl.publicationStartDate', ':cdate'),
                 $qb->expr()->gte('sl.publicationEndDate', ':cdate'),
-                ($user ? $qb->expr()->eq('sl.is_user', 0) : $qb->expr()->eq('sl.is_user', 1)),
-                $qb->expr()->eq('ct.prefix', ':city')
+                $qb->expr()->eq('sl.is_user', 1),
+                $qb->expr()->isNull('ct.prefix')
             );
         }
+
+        if ($cityRelated && $cityRelated->getCity()) {
+
+            $criterias[] = $qb->expr()->andx(
+                $qb->expr()->eq('sl.status', ':timestatus'),
+                $qb->expr()->lte('sl.publicationStartDate', ':cdate'),
+                $qb->expr()->gte('sl.publicationEndDate', ':cdate'),
+                $qb->expr()->eq('sl.is_user', 0),
+                $qb->expr()->eq('ct.prefix', ':city')
+            );
+
+            if($user) {
+                $criterias[] = $qb->expr()->andx(
+                    $qb->expr()->eq('sl.status', ':timestatus'),
+                    $qb->expr()->lte('sl.publicationStartDate', ':cdate'),
+                    $qb->expr()->gte('sl.publicationEndDate', ':cdate'),
+                    $qb->expr()->eq('sl.is_user', 1),
+                    $qb->expr()->eq('ct.prefix', ':city')
+                );
+            }
+        }
+
         $where = \call_user_func_array([$qb->expr(), "orx"], $criterias);
 
         $qb->andWhere($where);
 
         $qb->setParameter('showstatus', 'show');
         $qb->setParameter('timestatus', 'time');
-        if($city && $city->getPrefix()) {
-            $qb->setParameter('city', $city->getPrefix());
+
+        if ($cityRelated && $cityRelated->getCity()) {
+            $qb->setParameter('city', $cityRelated->getCity()->getPrefix());
         }
+
         $qb->setParameter('cdate', new \DateTime());
         $qb->setParameter('sName', $sysName);
 
@@ -134,7 +190,8 @@ class SliderRepository extends EntityRepository
 
     }
 
-    protected function getUserIp() {
+    protected function getUserIp()
+    {
 
         $forwardfor = isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : null;
 
@@ -148,6 +205,73 @@ class SliderRepository extends EntityRepository
             return $realip;
         }
         return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null;
+    }
+
+
+    public function getRandomIp()
+    {
+        $ip = [];
+        while (count($ip) < 4) {
+            $ip[] = rand(0, 255);
+        }
+        return join('.', $ip);
+    }
+
+    public function getRandomIps($count = 1000)
+    {
+        $ips = array();
+        while (count($ips) < $count) {
+            $ips[] = $this->getRandomIp();
+        }
+        return $ips;
+    }
+
+    public function transliterate($st)
+    {
+        $st = strtr($st,
+            "абвгдежзийклмнопрстуфыэАБВГДЕЖЗИЙКЛМНОПРСТУФЫЭ",
+            "abvgdegziyklmnoprstufieABVGDEGZIYKLMNOPRSTUFIE"
+        );
+        $st = strtr($st, array(
+            'ё' => "yo", 'х' => "h", 'ц' => "ts", 'ч' => "ch", 'ш' => "sh",
+            'щ' => "shch", 'ъ' => '', 'ь' => '', 'ю' => "yu", 'я' => "ya",
+            'Ё' => "Yo", 'Х' => "H", 'Ц' => "Ts", 'Ч' => "Ch", 'Ш' => "Sh",
+            'Щ' => "Shch", 'Ъ' => '', 'Ь' => '', 'Ю' => "Yu", 'Я' => "Ya",
+        ));
+        return $st;
+    }
+
+    public function translit($s)
+    {
+        $s = (string)$s; // преобразуем в строковое значение
+        $s = strip_tags($s); // убираем HTML-теги
+        $s = str_replace(array("\n", "\r"), " ", $s); // убираем перевод каретки
+        $s = preg_replace("/\s+/", ' ', $s); // удаляем повторяющие пробелы
+        $s = trim($s); // убираем пробелы в начале и конце строки
+        $s = function_exists('mb_strtolower') ? mb_strtolower($s) : strtolower($s); // переводим строку в нижний регистр (иногда надо задать локаль)
+        $s = strtr($s, array('а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'e', 'ж' => 'j', 'з' => 'z', 'и' => 'i', 'й' => 'y', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p', 'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'c', 'ч' => 'ch', 'ш' => 'sh', 'щ' => 'shch', 'ы' => 'y', 'э' => 'e', 'ю' => 'yu', 'я' => 'ya', 'ъ' => '', 'ь' => ''));
+        $s = preg_replace("/[^0-9a-z-_ ]/i", "", $s); // очищаем строку от недопустимых символов
+        $s = str_replace(" ", "-", $s); // заменяем пробелы знаком минус
+        return $s; // возвращаем результат
+    }
+
+
+    public function getUser()
+    {
+        if (!$this->container->has('security.token_storage')) {
+            throw new \LogicException('The SecurityBundle is not registered in your application.');
+        }
+
+        if (null === $token = $this->tokenStorage->getToken()) {
+            return;
+        }
+
+        if (!is_object($user = $token->getUser())) {
+            // e.g. anonymous authentication
+            return;
+        }
+
+        return $user;
     }
 
 }

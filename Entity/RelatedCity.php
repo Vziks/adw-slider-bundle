@@ -2,19 +2,18 @@
 
 namespace ADW\SliderBundle\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class City
+ * Class RelatedCity
  * Project adw/slider-bundle
  * @package ADW\SliderBundle\Entity
  * @author Anton Prokhorov
  *
- * @ORM\Entity()
- * @ORM\Table(name="adw_slide_city")
+ * @ORM\Entity(repositoryClass="ADW\SliderBundle\Repository\RelatedCityRepository")
+ * @ORM\Table(name="adw_slide_related_city")
  */
-class City
+class RelatedCity
 {
     /**
      * @var int
@@ -39,21 +38,13 @@ class City
      */
     protected $prefix;
 
-    /**
-     * @ORM\OneToMany(targetEntity="ADW\SliderBundle\Entity\RelatedCity", mappedBy="city", cascade={"persist", "remove"}, orphanRemoval=true)
-     * @Orm\OrderBy({"name" = "ASC"})
-     */
-    private $relatedCitys;
-
-
-    public function __construct()
-    {
-        $this->relatedCitys = new ArrayCollection();
-    }
 
     /**
-     * @return string
+     * @ORM\ManyToOne(targetEntity="City", inversedBy="relatedCitys", cascade={"persist"})
+     * @ORM\JoinColumn(name="city_id", referencedColumnName="id")
      */
+    private $city;
+
     function __toString()
     {
       return $this->getName();
@@ -69,7 +60,7 @@ class City
 
     /**
      * @param int $id
-     * @return City
+     * @return RelatedCity
      */
     public function setId($id)
     {
@@ -87,7 +78,7 @@ class City
 
     /**
      * @param string $name
-     * @return City
+     * @return RelatedCity
      */
     public function setName($name)
     {
@@ -105,7 +96,7 @@ class City
 
     /**
      * @param string $prefix
-     * @return City
+     * @return RelatedCity
      */
     public function setPrefix($prefix)
     {
@@ -116,48 +107,19 @@ class City
     /**
      * @return mixed
      */
-    public function getRelatedCitys()
+    public function getCity()
     {
-        return $this->relatedCitys;
+        return $this->city;
     }
 
     /**
-     * @param mixed $relatedCitys
-     * @return City
+     * @param mixed $city
+     * @return RelatedCity
      */
-    public function setRelatedCitys($relatedCitys)
+    public function setCity($city)
     {
-        $this->relatedCitys = new ArrayCollection();
-        foreach ($relatedCitys as $relatedCity) {
-            $this->addRelatedCity($relatedCity);
-        }
+        $this->city = $city;
         return $this;
     }
-
-    /**
-     * @param RelatedCity $relatedCity
-     * @return $this
-     */
-    public function addRelatedCity($relatedCity)
-    {
-        $relatedCity->setCity($this);
-        $this->relatedCitys->add($relatedCity);
-
-        return $this;
-    }
-
-    /**
-     * @param RelatedCity $relatedCity
-     * @return $this
-     */
-    public function removeRelatedCity($relatedCity)
-    {
-        $this->relatedCitys->removeElement($relatedCity);
-
-        return $this;
-    }
-
-
-
 
 }

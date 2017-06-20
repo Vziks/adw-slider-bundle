@@ -315,7 +315,7 @@ class Slide
      *
      * @return Slide
      */
-    public function addTag(\ADW\SliderBundle\Entity\City $city)
+    public function addCity(\ADW\SliderBundle\Entity\City $city)
     {
         $this->citys[] = $city;
 
@@ -327,7 +327,7 @@ class Slide
      *
      * @param \ADW\SliderBundle\Entity\City $city
      */
-    public function removeTag(\ADW\SliderBundle\Entity\City $city)
+    public function removeCity(\ADW\SliderBundle\Entity\City $city)
     {
         $this->citys->removeElement($city);
     }

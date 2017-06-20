@@ -5,6 +5,12 @@ services:
         tags:
             - { name: sonata.admin, manager_type: orm, group: "Баннерокрутилка", label: City }
 
+    adw.admin.relatedcity:
+        class: ADW\SliderBundle\Admin\RelatedCityAdmin
+        arguments: [~, ADW\SliderBundle\Entity\RelatedCity, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: "Баннерокрутилка", label: Города пользователей }
+
     adw.admin.slider:
         class: ADW\SliderBundle\Admin\SliderAdmin
         arguments: [~, ADW\SliderBundle\Entity\Slider, SonataAdminBundle:CRUD]
