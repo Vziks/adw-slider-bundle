@@ -62,6 +62,17 @@ jQuery(document).ready(function() {
 		var tab = jQuery(this).closest(".tab-content", ".admin-custom");
 		jQuery(tab).toggleClass('active');
 
+		var activeTab = jQuery(".tab-content.active", ".admin-custom");
+
+		var activeTabImg = jQuery(".img-polaroid", activeTab);
+
+		if (activeTabImg.length) {
+			var previewWrap = $('.admin-custom__media-preview', activeTab);
+			var previewOverlay = $(previewWrap).find('.admin-custom__media-overlay');
+
+			$(previewOverlay).css('backgroundImage', 'url(' + $(activeTabImg).attr('src') + ')');
+		}
+
 		slideType = jQuery("input[name*='[type]']:checked", tab).val();
 		slideTimeType = jQuery("input[name*='[status]']:checked", tab).val();
 
@@ -95,6 +106,42 @@ jQuery(document).ready(function() {
 		jQuery(this).closest(".tab-content").removeClass('active');
 	});
 
+	jQuery(".admin-custom__save-btn", ".admin-custom").on('click', function () {
+		jQuery(this).closest(".tab-content").removeClass('active');
+
+		var currentTab = jQuery(this).closest(".tab-content");
+		var currentImgSrc = jQuery(".img-polaroid", currentTab).attr('src');
+		var currentPreviewImg = jQuery(".admin-custom__img-preview", currentTab).find("img");
+
+		var currentTitle = jQuery("input[name*='[name]']", currentTab).val();
+
+		if (currentImgSrc !== currentPreviewImg.attr('src')) {
+			currentPreviewImg.prop('src', currentImgSrc);
+		}
+
+		if (currentTitle !== jQuery(".admin-custom__slide-name", currentTab).find("span").html()) {
+			jQuery(".admin-custom__slide-name", currentTab).find("span").html(currentTitle);
+		}
+
+		var currentTime = jQuery("input[name*='[publication_end_date]']", currentTab).val();
+		var isHided = jQuery("input[name*='[status]']:checked", currentTab).val() === 'hide';
+
+		if (currentTime) {
+			currentTime = currentTime.split(' ')[0];
+			if ( !jQuery(".admin-custom__time", currentTab).find("span").length || 'Показ до ' +  currentTime !== jQuery(".admin-custom__time", currentTab).find("span").html()) {
+				jQuery(".admin-custom__time", currentTab).find("span").html('Показ до ' +  currentTime);
+			}
+		}
+
+		if (isHided) {
+			if (!jQuery(".admin-custom__time", currentTab).find("span").length || jQuery(".admin-custom__time", currentTab).find("span").html() !== 'Скрыт') {
+				jQuery(".admin-custom__time", currentTab).find("span").html('Скрыт');
+			}
+		}
+
+		jQuery(currentTab).removeClass('active');
+	});
+
 	function toggleTypeContainer(prop, tab) {
 		if (prop === 'img') {
 			jQuery("div[class*='_slides-media']", tab).show();
@@ -118,9 +165,13 @@ jQuery(document).ready(function() {
 			jQuery("div[class*='_slides-publication_start_date']", tab).hide();
 			jQuery("div[class*='_slides-is_user']", tab).hide();
 			jQuery("div[class*='_slides-delay']", tab).hide();
+			jQuery("div[class*='_slides-citys']", tab).hide();
+			jQuery("div[class*='_slides-name']", tab).hide();
 		} else {
 			jQuery("div[class*='_slides-is_user']", tab).show();
 			jQuery("div[class*='_slides-delay']", tab).show();
+			jQuery("div[class*='_slides-citys']", tab).show();
+			jQuery("div[class*='_slides-name']", tab).show();
 			jQuery("div[class*='_slides-publication_end_date']", tab).hide();
 			jQuery("div[class*='_slides-publication_start_date']", tab).hide();
 		}

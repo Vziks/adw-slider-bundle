@@ -68,19 +68,6 @@ class SlideAdmin extends AbstractAdmin
         $context = $this->container->getParameter('adw_slider.media_context');
 
         $formMapper
-            ->with('Publish Workflow', ['tab' => true])
-            ->add('name', null, [
-                'attr' => [
-                    'class' => 'name'
-                ],
-                'label' => 'Название'
-            ])
-            ->add('citys', 'sonata_type_model_autocomplete', [
-                'property' => "name",
-                'multiple' => true,
-                'label' => '   Показывать только для городов'
-            ])
-            ->end()
             ->with('1')
             ->add('type', 'choice', [
                 'choices' => [
@@ -92,14 +79,14 @@ class SlideAdmin extends AbstractAdmin
                 'label' => 'Тип слайда'
             ])
             ->add('media', 'sonata_media_type', [
-                    'label' => 'Изображение',
+                    'label' => false,
                     'provider' => 'sonata.media.provider.image',
                     'context' => $context,
                     'required' => false
                 ]
             )
             ->add('url', null, [
-                'label' => 'URL',
+                'label' => 'URL:',
                 'attr' => [
                     'class' => ''
                 ]
@@ -135,6 +122,12 @@ class SlideAdmin extends AbstractAdmin
             ->add('is_user', null , [
                 'label' => 'Только для авторизованных пользователей'
             ])
+            ->add('citys', 'sonata_type_model_autocomplete', [
+                'property' => "name",
+                'multiple' => true,
+                'placeholder' => 'Показывать везде',
+                'label' => 'География'
+            ])
             ->add('publication_start_date', 'sonata_type_datetime_picker', [
 //                'format' => 'YYYY-MM-DD HH:MM:SS',
                 'required' => false,
@@ -156,6 +149,12 @@ class SlideAdmin extends AbstractAdmin
                 'attr' => [
                     'class' => ''
                 ]
+            ])
+            ->add('name', null, [
+                'attr' => [
+                    'class' => 'name'
+                ],
+                'label' => 'Название'
             ])
             ->end()
         ;

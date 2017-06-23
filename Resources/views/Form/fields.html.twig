@@ -11,3 +11,106 @@
 	    {{ translation_domain is same as(false) ? label : label|trans({}, translation_domain) }}
     </label>
 {%- endblock radio_widget %}
+
+{% block sonata_media_type_widget %}
+
+	{% if form.vars['provider'] in ['sonata.media.provider.image', 'sonata.media.provider.svg'] %}
+        <div class="admin-custom__media-view {% if value is not empty and value.providerReference %}active{% endif %}" id="{{ form.vars.id }}" >
+
+	        <div class="admin-custom__media-preview">
+		        {% if value is not empty and value.providerReference %}
+				    {% thumbnail value, 'admin' with {'class': 'img-polaroid media-object admin-custom__media-img'} %}
+
+			    {% do form.unlink.setRendered(true) %}
+		        {% endif %}
+		        <div class="admin-custom__media-overlay"></div>
+		        <div class="admin-custom__media-onhover">
+			        {% if value is not empty and value.providerReference %}
+				        <strong class="admin-custom__media-title">{{ value.name }}</strong>
+			        {% endif %}
+
+			        <div class="photo-attach">
+				        <img src="{{ asset('bundles/adwslider/upload-icon.png') }}">
+				        <span class="photo-attach__btn">{% if value is not empty and value.providerReference %}Заменить картинку{% else %}Загрузить картинку{% endif %}</span>
+				        <mark>Файл не выбран</mark>
+
+				        {{ block('form_widget') }}
+			        </div>
+		        </div>
+	        </div>
+
+
+
+            <script type="text/javascript">
+
+				$('#{{ form.vars.id  }} input[type="file"]').change(function(e){
+					var files = e.target.files; // FileList object
+
+					// Loop through the FileList and render image files as thumbnails.
+					for (var i = 0, f; f = files[i]; i++) {
+
+						// Only process image files.
+						if (!f.type.match('image.*')) {
+							continue;
+						}
+
+						var reader = new FileReader();
+
+						// Closure to capture the file information.
+						reader.onload = (function(file) {
+							return function(e) {
+
+								var im = new Image;
+								var srcToPast = e.target.result;
+								im.src = e.target.result;
+
+								var imageWidth = '100%';
+								var imageHeight = '100%';
+
+								var imageClass = '';
+
+								$(im).on('load', function (e) {
+
+									var shortestEdge = Math.min(this.width, this.height);
+									var previewWrap = $('#{{ form.vars.id }} .admin-custom__media-preview');
+
+									if (shortestEdge === this.width) {
+										imageClass = 'short-width';
+									} else {
+										imageClass = 'short-height';
+									}
+
+									var previewImg = $(previewWrap).find('.admin-custom__media-img');
+									var previewOverlay = $(previewWrap).find('.admin-custom__media-overlay');
+									if (previewImg.length) {
+
+										$(previewImg).attr('src', srcToPast);
+										$(previewImg).attr('title', file.name);
+										$(previewImg).attr('alt', file.name);
+
+										$(previewWrap).find('.admin-custom__media-title').html(file.name);
+									} else {
+										$(previewWrap).find('.photo-attach__btn').html('Заменить картинку');
+										$(previewWrap).append('<img class="img-polaroid media-object admin-custom__media-img" title="' + file.name + '" alt="' + file.name + '" src ="'+ srcToPast + '">');
+										$(previewWrap).find('.admin-custom__media-onhover').append('<strong class="admin-custom__media-title">' + file.name + '</strong>');
+									}
+
+									$(previewOverlay).removeClass('short-height short-width');
+									$(previewOverlay).css('backgroundImage', 'url(' + srcToPast + ')');
+									$(previewOverlay).addClass(imageClass);
+
+									$('#{{ form.vars.id }}').addClass('active');
+								});
+							};
+						})(f);
+
+						// Read in the image file as a data URL.
+						reader.readAsDataURL(f);
+					}
+				});
+            </script>
+        </div>
+	{% else %}
+		{{ parent() }}
+	{% endif %}
+{% endblock sonata_media_type_widget %}

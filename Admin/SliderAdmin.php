@@ -75,17 +75,19 @@ class SliderAdmin extends AbstractAdmin
 
         $formMapper
             ->with('Publish Workflow', ['tab' => false])
-            ->add('name')
-            ->add('is_show');
-        $formMapper
+            ->add('name', null, [
+                'label' => 'Название баннера'
+            ])
             ->add('sysName')
-            ->add('description');
-        $formMapper
-            ->add('width', null, ($id && $this->getSubject() instanceof Slider ? $arrayAttr : null))
-            ->add('height', null, ($id && $this->getSubject() instanceof Slider ? $arrayAttr : null));
-        $formMapper
-            ->end()
-            ->with('Publish Workflow')
+            ->add(
+                $formMapper->create('_banner-width', 'form', array('label' => 'Формат баннера', 'virtual' => true))
+                    ->add('width', null, ($id && $this->getSubject() instanceof Slider ? $arrayAttr : null))
+                    ->add('height', null, ($id && $this->getSubject() instanceof Slider ? $arrayAttr : null))
+            )
+            ->add('description', null, [
+                'label' => 'Описание баннера (не показывается на сайте)'
+            ])
+            ->add('is_show')
             ->add('slides',
                 'sonata_type_collection',
                 [

@@ -1,5 +1,9 @@
 /*custom admin styles (for slider)*/
 
+body.fixed .content-header .navbar.stuck {
+	z-index: 10000;
+}
+
 .admin-custom .tab-content {
 	position: relative;
 }
@@ -20,6 +24,7 @@
 .admin-custom__tr img {
 	display: block;
 	max-height: 80%;
+	max-width: 80%;
 }
 
 .admin-custom .ui-icon {
@@ -61,6 +66,7 @@
 .admin-custom .tab-content.active {
 	font-size: 0;
 	background-color: #e8e8e8;
+	padding-bottom: 50px;
 }
 
 .admin-custom .tab-content.active .admin-custom__arrows {
@@ -79,14 +85,6 @@
 
 .admin-custom .admin-custom__arrow:hover {
 	color: #3c8dbc;
-}
-
-.admin-custom .admin-custom__arrow_up {
-
-}
-
-.admin-custom .admin-custom__arrow_down {
-
 }
 
 .admin-custom .tab-content.active .admin-custom__tr {
@@ -154,10 +152,6 @@
 	width: 50%;
 }
 
-.admin-custom .tab-content.active .tab-pane:first-of-type {
-	width: 100%;
-}
-
 .admin-custom .tab-content.active .admin-custom__img-preview {
 	display: none;
 }
@@ -187,16 +181,24 @@
 	color: #656565;
 }
 
-.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] {
-	height: 350px;
+.admin-custom .sonata-ba-collapsed-fields div[id$="_media"] {
+	margin-bottom: 0;
 }
 
-.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] .media-object {
-	max-height: 200px;
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] .media-object.no-image {
+	display: none;
 }
 
-.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] .row:first-of-type .col-md-4 {
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] .row .col-md-4 {
 	width: 100%;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] .row .col-md-4 .sonata_media_preview {
+	width: 100%;
+	height: 350px;
+	display: inline-block;
+	vertical-align: middle;
+	text-align: center;
 }
 
 .admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] .row:first-of-type .col-md-3,
@@ -249,3 +251,262 @@
 	content: '\2014';
 	font-size: 14px;
 }
+
+div[id*="__banner-width"] .form-group {
+	position: relative;
+	display: inline-block;
+	width: 75px;
+}
+
+div[id*="__banner-width"] .form-group label {
+	display: none;
+}
+
+div[id*="__banner-width"] .form-group:first-of-type {
+	margin-right: 30px;
+
+}
+
+div[id*="__banner-width"] .form-group:first-of-type:after {
+	content: 'x';
+	position: absolute;
+	right: -19px;
+	top: 17%;
+	font-size: 14px;
+	color: #000000;
+}
+
+div[id*="__banner-width"] .form-group:last-of-type:after {
+	content: 'px';
+	position: absolute;
+	right: -19px;
+	top: 17%;
+	font-size: 14px;
+	color: #000000;
+}
+
+div[id*="_is_show"] .control-label__text {
+	float: left;
+}
+
+div[id*="_is_show"] .icheckbox_square-blue {
+	margin-left: 10px;
+}
+
+div[id$="_slides"].form-group {
+	margin-top: 30px;
+}
+
+div[id$="_slides"].form-group > .control-label {
+	font-size: 18px;
+}
+
+div[id$="_citys_autocomplete_input"] {
+	width: 380px;
+}
+
+div[id$="_citys_autocomplete_input"] input {
+	font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+
+div[id$="_citys_autocomplete_input"] input {
+	color: rgb(85, 85, 85) !important;
+}
+
+div[class$="_slides-name"] input {
+	width: 380px;
+}
+
+div[class$="_slides-url"] {
+	padding-top: 25px;
+}
+
+div[class$="_slides-url"] .form-group {
+	position: relative;
+}
+
+div[class$="_slides-url"] label {
+	position: absolute;
+	top: calc(50% - 7px);
+	left: 10px;
+	height: 20px;
+	line-height: 1;
+	margin: 0;
+	font-style: italic;
+	opacity: 0.5;
+}
+
+div[class$="_slides-url"] input {
+	padding-left: 45px;
+}
+
+
+.photo-attach {
+	display: block;
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+	height: 350px;
+}
+
+.photo-attach__btn {
+	float: right;
+	margin: 0 auto;
+	padding-right: 0;
+	padding-top: 10px;
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	color: rgb(85, 85, 85);
+	text-transform: none;
+	text-decoration: underline;
+	text-align: center;
+	font-size: 14px;
+	font-weight: 700;
+	outline: none;
+	cursor: pointer;
+}
+
+.photo-attach .photo-attach__btn,
+.photo-attach > mark {
+	display: block;
+	cursor: auto;
+	border: 0;
+}
+
+.photo-attach img {
+	width: 120px;
+	display: block;
+	margin: 0 auto;
+	margin-top: 80px;
+	margin-bottom: 15px;
+}
+
+.photo-attach > mark {
+	background: transparent;
+}
+.photo-attach input[type=file] {
+	padding: 0;
+	position: absolute;
+	top: 0;
+	right: 0;
+	opacity: 0;
+	height: 100%;
+	margin-top: 0;
+	font-size: 14px;
+	width: 100%;
+	cursor: pointer;
+}
+
+.photo-attach input[type=file]::-webkit-file-upload-button {
+	cursor: pointer;
+}
+
+.admin-custom__media-view {
+	height: 350px;
+	border: 3px dashed #656565;
+}
+
+.admin-custom__media-view.active {
+	position: relative;
+	border: none;
+}
+
+.admin-custom__media-view.active .admin-custom__media-preview {
+	display: block;
+	height: 350px;
+	width: 100%;
+	text-align: center;
+	overflow: hidden;
+}
+
+.admin-custom__media-view.active .admin-custom__media-overlay {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 100;
+	pointer-events: none;
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
+	background-color: #e8e8e8;
+	background-size: contain;
+}
+
+.admin-custom .sonata-ba-collapsed-fields div[class*="_slides-media"] .media-object {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0 auto;
+}
+
+.admin-custom__media-view.active .admin-custom__media-onhover {
+	display: none;
+	position: absolute;
+	bottom: 0;
+	height: 40px;
+	width: 100%;
+	background: rgba(232, 232, 232, 0.5);
+	border: 1px solid #a0a0a0;
+	z-index: 101;
+}
+
+.admin-custom__media-view.active:hover .admin-custom__media-onhover{
+	display: block;
+}
+
+.admin-custom__media-view.active .admin-custom__media-title {
+	display: inline-block;
+	width: 60%;
+	height: 40px;
+	padding-top: 10px;
+	vertical-align: middle;
+	text-align: left;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	float: left;
+	margin-left: 20px;
+	color: #000000;
+}
+
+.admin-custom__media-view.active .photo-attach {
+	display: inline-block;
+	position: relative;
+	width: 155px;
+	height: 40px;
+	vertical-align: middle;
+	float: right;
+	margin-right: 20px;
+	color: #000000;
+}
+
+.admin-custom__media-view.active .photo-attach__btn {
+	color: #000000;
+}
+
+.admin-custom__media-view.active .photo-attach img {
+	display: none;
+}
+
+.admin-custom__save-btn {
+	display: none;
+	font-size: 14px;
+	position: absolute;
+	left: 65px;
+	bottom: 17px;
+	width: auto;
+	background-color: #35aa47;
+	color: #FFFFFF;
+	padding: 5px 10px;
+	cursor: pointer;
+}
+
+.tab-content.active .admin-custom__save-btn {
+	display: inline-block;
+}
+
+.form-actions.stuck {
+	z-index: 1000;
+}
+

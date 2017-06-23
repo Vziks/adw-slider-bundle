@@ -20,7 +20,7 @@ file that was distributed with this source code.
             <th width="20%" style="padding-left: 40px;" colspan="2">Порядок показа</th>
             <th width="20%">Превью</th>
             <th width="55%">Название</th>
-            <th width="5%"></th>
+            <th width="5%">Удалить</th>
         </tr>
 	</table>
     <div class="sonata-ba-tabs">
@@ -39,7 +39,6 @@ file that was distributed with this source code.
                                 <th width="20%" class="admin-custom__img-preview"><img src=""></th>
                                 <th width="55%" class="admin-custom__slide-name"><span></span></th>
                                 <th width="5%">
-                                    <span class="ui-icon ui-icon-grip-solid-horizontal"></span>
                                     <span class="ui-icon ui-icon-trash"></span>
                                 </th>
                             </tr>
@@ -65,6 +64,7 @@ file that was distributed with this source code.
                                 </fieldset>
                             </div>
                         {% endfor %}
+                        <div class="admin-custom__save-btn">Сохранить</div>
                         <span class="ui-icon ui-icon-trash admin-custom__del"></span>
                     </div>
         {% endfor %}
