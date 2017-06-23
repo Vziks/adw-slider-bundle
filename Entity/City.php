@@ -35,13 +35,14 @@ class City
     /**
      * @var string
      *
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true)
      */
     protected $prefix;
 
     /**
-     * @ORM\OneToMany(targetEntity="ADW\SliderBundle\Entity\RelatedCity", mappedBy="city", cascade={"persist", "remove"}, orphanRemoval=true)
-     * @Orm\OrderBy({"name" = "ASC"})
+     * @var RelatedCity[]|ArrayCollection
+     *
+     * @ORM\ManyToMany(targetEntity="ADW\SliderBundle\Entity\RelatedCity")
      */
     private $relatedCitys;
 

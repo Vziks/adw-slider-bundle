@@ -67,30 +67,35 @@ class SliderRepository extends EntityRepository
 
         $cityRelated = NULL;
 
-        $userLocation = $this->container->get('adw.geoip.handler')->getLocation($userIp);
 
-        if ($userLocation && $userLocation->getCode() == 'RU') {
 
-            $userCity = $this->container->get('adw.geoip.handler')->getCity($userIp);
 
-            $relatedCity = $em->getRepository('ADWSliderBundle:RelatedCity')->findOneBy(['prefix' => 'is_' . strtolower($userLocation->getCode()) . '_' . strtolower($this->translit($userCity))]);
-            if (!$relatedCity && $userCity) {
-                $relatedCity = new RelatedCity();
-                $relatedCity->setName($userCity);
-                $relatedCity->setPrefix('is_' . strtolower($userLocation->getCode()) . '_' . strtolower($this->translit($userCity)));
+            $userLocation = $this->container->get('adw.geoip.handler')->getLocation($userIp);
 
-                $em->persist($relatedCity);
-                $em->flush();
+
+            if ($userLocation && $userLocation->getCode() == 'RU') {
+
+                $userCity = $this->container->get('adw.geoip.handler')->getCity($userIp);
+
+                $relatedCity = $em->getRepository('ADWSliderBundle:RelatedCity')->findOneBy(['prefix' => 'is_' . strtolower($userLocation->getCode()) . '_' . strtolower($this->translit($userCity))]);
+                if (!$relatedCity && $userCity) {
+                    $relatedCity = new RelatedCity();
+                    $relatedCity->setName($userCity);
+                    $relatedCity->setPrefix('is_' . strtolower($userLocation->getCode()) . '_' . strtolower($this->translit($userCity)));
+
+                    $em->persist($relatedCity);
+                    $em->flush();
+                }
+
+                $userLocationArray = $userLocation->toArray();
+
+                /**
+                 * @var City $cityRelated
+                 */
+                $cityRelated = $em->getRepository('ADWSliderBundle:RelatedCity')->findOneBy(['prefix' => 'is_' . strtolower($userLocation->getCode()) . '_' . strtolower($this->translit($userLocationArray['city']['name']))]);
+
             }
 
-            $userLocationArray = $userLocation->toArray();
-
-            /**
-             * @var City $cityRelated
-             */
-            $cityRelated = $em->getRepository('ADWSliderBundle:RelatedCity')->findOneBy(['prefix' => 'is_' . strtolower($userLocation->getCode()) . '_' . strtolower($this->translit($userLocationArray['city']['name']))]);
-
-        }
 
         $criterias = [];
 
@@ -240,7 +245,7 @@ class SliderRepository extends EntityRepository
         return $st;
     }
 
-    public function translit($s)
+    static public function translit($s)
     {
         $s = (string)$s; // преобразуем в строковое значение
         $s = strip_tags($s); // убираем HTML-теги
