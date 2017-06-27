@@ -81,8 +81,8 @@ class SliderAdmin extends AbstractAdmin
             ->add('sysName')
             ->add(
                 $formMapper->create('_banner-width', 'form', array('label' => 'Формат баннера', 'virtual' => true))
-                    ->add('width', null, ($id && $this->getSubject() instanceof Slider ? $arrayAttr : null))
-                    ->add('height', null, ($id && $this->getSubject() instanceof Slider ? $arrayAttr : null))
+                    ->add('width', null, ($id && $this->getSubject() instanceof Slider ? $arrayAttr : []))
+                    ->add('height', null, ($id && $this->getSubject() instanceof Slider ? $arrayAttr : []))
             )
             ->add('description', null, [
                 'label' => 'Описание баннера (не показывается на сайте)'
