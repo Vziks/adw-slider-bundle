@@ -412,6 +412,11 @@ div[class$="_slides-url"] input {
 	border: none;
 }
 
+.admin-custom__media-view.is-dragover {
+	background-color: #FFFFFF;
+	opacity: 0.5;
+}
+
 .admin-custom__media-view.active .admin-custom__media-preview {
 	display: block;
 	height: 350px;
@@ -506,7 +511,23 @@ div[class$="_slides-url"] input {
 	display: inline-block;
 }
 
+.admin-custom__reset-btn {
+	display: none;
+	font-size: 14px;
+	position: absolute;
+	left: 180px;
+	bottom: 17px;
+	width: auto;
+	color: #000000;
+	padding: 5px 10px;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.tab-content.active .admin-custom__reset-btn {
+	display: inline-block;
+}
+
 .form-actions.stuck {
 	z-index: 1000;
 }
-
