@@ -33,6 +33,33 @@ $(function () {
 		}
 
 	});
+	
+	function checkForUpdates(currentTab) {
+		var currentTabInputs = $(currentTab).find('input');
+		var currentTabFileInput = $(currentTab).find("input[type='file']");
+		var currentTabTextarea = $(currentTab).find('textarea');
+		var currentTabSaveBtn = $(currentTab).find('.admin-custom__save-btn');
+
+		var toggleSaveBtn = function () {
+			if (currentTabSaveBtn.hasClass('disabled')) {
+				currentTabSaveBtn.removeClass('disabled');
+			}
+
+			$(this).off('ifChanged', toggleSaveBtn);
+			$(this).off('change', toggleSaveBtn);
+
+			this !== currentTabFileInput && currentTabFileInput.off('change', toggleSaveBtn);
+			this !== currentTabTextarea && currentTabTextarea.off('change', toggleSaveBtn);
+		};
+
+		$.each(currentTabInputs, function (index, tabInput) {
+			$(tabInput).on('ifChanged', toggleSaveBtn);
+			$(tabInput).on('change', toggleSaveBtn);
+		});
+
+		currentTabFileInput.on('change', toggleSaveBtn);
+		currentTabTextarea.on('change', toggleSaveBtn);
+	}
 
 	function setInitialSlideData(slide) {
 		var param = $(slide).index();
@@ -97,12 +124,9 @@ $(function () {
 		var isForAuthorizedBtn = $(slide).find("input[name*='[is_user]']");
 
 		$(slideName).val(data.slideName);
-
-		$(isHTMLbtn).attr('checked', false);
-		$(isImgBtn).attr('checked', false);
 		
-		data.isHTML && isHTMLbtn.attr('checked', 'checked') && $(isHTMLbtn).closest('label').click();
-		!data.isHTML && isImgBtn.attr('checked', 'checked') && $(isImgBtn).closest('label').click();
+		data.isHTML && $(isHTMLbtn).iCheck('check');
+		!data.isHTML && $(isImgBtn).iCheck('check');
 
 		if (!data.imageName) {
 			$uploadForm.removeClass('active');
@@ -117,24 +141,18 @@ $(function () {
 
 		$uploadForm.find('input[type="file"]').val('');
 
-		$(isHiddenBtn).attr('checked', false);
-		$(isTemporaryBtn).attr('checked', false);
-		$(isShownBtn).attr('checked', false);
-
-		!data.isTemporary && data.isHidden && $(isHiddenBtn).attr('checked', true) && $(isHiddenBtn).closest('label').click();
-		!data.isHidden && data.isTemporary && $(isTemporaryBtn).attr('checked', true) && $(isTemporaryBtn).closest('label').click();
-		!data.isHidden && !data.isTemporary && $(isShownBtn).attr('checked', true) && $(isShownBtn).closest('label').click();
+		!data.isTemporary && data.isHidden && $(isHiddenBtn).iCheck('check');
+		!data.isHidden && data.isTemporary && $(isTemporaryBtn).iCheck('check');
+		!data.isHidden && !data.isTemporary && $(isShownBtn).iCheck('check');
 
 		intervalContainer.val(data.interval);
 		urlContainer.val(data.url);
 		htmlContainer.val(data.slideHTML);
 
-		$(isForAuthorizedBtn).attr('checked', false);
-
 		if (data.isForAuthorized.length) {
-			$(isForAuthorizedBtn).attr('checked', true) && $(isForAuthorizedBtn).parent().addClass('checked');
+			$(isForAuthorizedBtn).iCheck('check');
 		} else {
-			$(isForAuthorizedBtn).attr('checked', false) && $(isForAuthorizedBtn).parent().removeClass('checked');
+			$(isForAuthorizedBtn).iCheck('uncheck');
 		}
 
 		$(startTimeContainer).val(data.startTime);
@@ -155,28 +173,30 @@ $(function () {
 		var inputVals = $(geoContainer).children();
 		//todo: needs further work on overriding autocomplete functionality
 
-		$('.select2-input').on('keydown', function (evt) {
-			evt.preventDefault();
-			var key = event.keyCode || event.charCode;
-			if( key == 8 || key == 46 ) {
-				var index = inputVals.length - 1;
-				inputVals[index].remove();
-				$(geoLabelsContainer).find('.select2-search-choice')[index].remove();
-				if (inputVals.length === 1) {
-					$('.select2-input').off('keydown');
-				}
-			}
-		});
+		// $('.select2-input').on('keydown', function (evt) {
+		// 	evt.preventDefault();
+		// 	var key = event.keyCode || event.charCode;
+		// 	if( key == 8 || key == 46 ) {
+		// 		var index = inputVals.length - 1;
+		// 		inputVals[index].remove();
+		// 		$(geoLabelsContainer).find('.select2-search-choice')[index].remove();
+		// 		// if (inputVals.length === 1) {
+		// 		// 	$('.select2-input').off('keydown');
+		// 		// }
+		// 	}
+		// });
 
 		$('.select2-search-choice-close').on('click', function (evt) {
 			evt.preventDefault();
 			var index = $(this).parent().index();
-
-			var inputVals = $(geoContainer).children();
 			inputVals[index].remove();
 			$(this).off('click');
 			$(this).parent().remove();
 		});
+
+		var currentTabSaveBtn = $(slide).find('.admin-custom__save-btn');
+		!$(currentTabSaveBtn).hasClass('disabled') && $(currentTabSaveBtn).addClass('disabled') && checkForUpdates(slide);
+
 	}
 
 	function getInitialSlideData(slide) {
@@ -228,7 +248,6 @@ $(function () {
 			var previewOverlay = $(slideWrap).find('.admin-custom__media-overlay');
 			$(previewOverlay).css('backgroundImage', 'url(' + $(activeTabImg).attr('src') + ')');
 		}
-
 	}
 
 	$.each(tabs, function (index, tab) {
@@ -254,38 +273,33 @@ $(function () {
 		toggleTypeContainer(slideType, tab);
 		toggleTimeContainer(slideTimeType, tab);
 
-		var slideTypeBtns = $("label[for*='_type']", tab);
-		var slideTypeBtns2 = $(".iCheck-helper", tab);
-		$(slideTypeBtns).click(function (e) {
-			slideType = $("input[name*='[type]']:checked", tab).val();
+		var slideTypeBtns = $("input[name*='[type]']", tab);
+		var slideTimeTypeBtns = $("input[name*='[status]']", tab);
+
+		$(slideTypeBtns).on('ifChecked', function (e) {
+			slideType = $(this).val();
 			toggleTypeContainer(slideType, tab);
 		});
-
-		$(slideTypeBtns2).click(function (e) {
-			slideType = $("input[name*='[type]']:checked", tab).val();
-			var slideStatus = $("input[name*='[status]']:checked", tab).val();
-
-			toggleTypeContainer(slideType, tab);
-			toggleTimeContainer(slideStatus, tab);
-
-		});
-
-		var slideTimeBtns = $("label[for*='_status']", tab);
-		$(slideTimeBtns).click(function (e) {
-			slideTimeType = $("input[name*='[status]']:checked", tab).val();
+		$(slideTimeTypeBtns).on('ifChecked', function (e) {
+			slideTimeType = $(this).val();
 			toggleTimeContainer(slideTimeType, tab);
 		});
 
 		updateSlide(tab);
 		!getInitialSlideData(tab) && setInitialSlideData(tab);
+		checkForUpdates(tab);
 	});
 
 	$(".admin-custom__save-btn", ".admin-custom").on('click', function () {
+		if ($(this).hasClass('disabled')) {
+			return false;
+		}
 		var currentTab = $(this).closest(".tab-content");
 		updatePreviewLine(currentTab);
 		setInitialSlideData(currentTab);
 
 		$(currentTab).removeClass('active');
+		$(this).addClass('disabled');
 	});
 
 	$(".admin-custom__reset-btn", ".admin-custom").on('click', function () {
