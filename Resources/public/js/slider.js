@@ -38,7 +38,7 @@ $(function () {
 		var param = $(slide).index();
 
 		slidesData[param] = {};
-		slidesData[param].geo = [];
+		slidesData[param].geo = {};
 
 		slidesData[param].slide = slide[0];
 		slidesData[param].slideName = $(slide[0]).find('.admin-custom__slide-name').find('span').html();
@@ -47,20 +47,25 @@ $(function () {
 		slidesData[param].imgSrc = $(".img-polaroid", slide[0]).attr('src');
 		slidesData[param].isHidden = $("input[name*='[status]']:checked", slide[0]).val() === 'hide';
 		slidesData[param].isTemporary = $("input[name*='[status]']:checked", slide[0]).val() === 'time';
-		slidesData[param].time = $("input[name*='[publication_end_date]']", slide[0]).val();
+		slidesData[param].startTime = $("input[name*='[publication_end_date]']", slide[0]).val();
+		slidesData[param].endTime = $("input[name*='[publication_end_date]']", slide[0]).val();
 		slidesData[param].isForAuthorized = $("input[name*='[is_user]']:checked", slide[0]);
 		slidesData[param].interval = $("input[name*='[delay]']", slide[0]).val();
 		slidesData[param].url = $("input[name*='[url]']", slide[0]).val();
 		slidesData[param].slideHTML = $("textarea[name*='[text]']", slide[0]).val();
 
-		var chosenCities = $('.select2-container', '.select2-choices', slide[0]).find('div');
+		var chosenCities = $('.select2-choices', '.select2-container', slide[0]).find('div');
+		var chosenCitiesVal = $('input', "div[id*='_citys_hidden_inputs_wrap']", '.select2-container', slide[0]);
+
 		if (chosenCities.length > 1) {
-			$.each(chosenCities, function (city) {
-				slidesData[param].geo.push($(city).html());
+			$.each(chosenCities, function (city, index) {
+				slidesData[param].geo.cityName = $(city).html();
+				slidesData[param].geo.cityVal = $(chosenCitiesVal[index]).val();
 			});
 
 		} else if (chosenCities.length) {
-			slidesData[param].geo.push($(chosenCities).html());
+			slidesData[param].geo.cityName = $(chosenCities).html();
+			slidesData[param].geo.cityVal = $(chosenCitiesVal[0]).val();
 		}
 	}
 
@@ -86,7 +91,8 @@ $(function () {
 		var urlContainer = $(slide).find("input[name*='[url]']");
 		var htmlContainer = $(slide).find("textarea[name*='[text]']");
 
-		//var geoContainer = $(slide).find("input[name*='[is_user]']");
+		var geoContainer = $(slide).find("div[id*='_citys_hidden_inputs_wrap']");
+		var geoLabelsContainer = $(slide).find("div[id*='_citys_hidden_inputs_wrap']").parent().find('.select2-choices');
 
 		var isForAuthorizedBtn = $(slide).find("input[name*='[is_user]']");
 
@@ -130,6 +136,47 @@ $(function () {
 		} else {
 			$(isForAuthorizedBtn).attr('checked', false) && $(isForAuthorizedBtn).parent().removeClass('checked');
 		}
+
+		$(startTimeContainer).val(data.startTime);
+		$(endTimeContainer).val(data.endTime);
+
+		$(geoContainer).children().remove();
+		$(geoLabelsContainer).find('.select2-search-choice').remove();
+
+		if (!$.isEmptyObject(data.geo)) {
+			$(slide).find('.select2-input').removeClass('select2-default');
+			$(slide).find('.select2-input').val('');
+			var sessionId = $(geoContainer).attr('id').split('_')[0];
+			var sessionNum = $(geoContainer).attr('id').split('_')[2];
+			$(geoContainer).append('<input type="hidden" name="' + sessionId + '[slides][' + sessionNum + '][citys][]" value="' + data.geo.cityVal + '">');
+			$(slide).find('.select2-search-field').before('<li class="select2-search-choice"><div>' + data.geo.cityName + '</div><a href="#" class="select2-search-choice-close" tabindex="-1"></a></li>');
+		}
+
+		var inputVals = $(geoContainer).children();
+		//todo: needs further work on overriding autocomplete functionality
+
+		$('.select2-input').on('keydown', function (evt) {
+			evt.preventDefault();
+			var key = event.keyCode || event.charCode;
+			if( key == 8 || key == 46 ) {
+				var index = inputVals.length - 1;
+				inputVals[index].remove();
+				$(geoLabelsContainer).find('.select2-search-choice')[index].remove();
+				if (inputVals.length === 1) {
+					$('.select2-input').off('keydown');
+				}
+			}
+		});
+
+		$('.select2-search-choice-close').on('click', function (evt) {
+			evt.preventDefault();
+			var index = $(this).parent().index();
+
+			var inputVals = $(geoContainer).children();
+			inputVals[index].remove();
+			$(this).off('click');
+			$(this).parent().remove();
+		});
 	}
 
 	function getInitialSlideData(slide) {
@@ -144,6 +191,7 @@ $(function () {
 
 	function updatePreviewLine(slideWrap) {
 		var previewImg = $(".admin-custom__img-preview", slideWrap).find("img");
+		var previewHTML = $(".admin-custom__img-preview", slideWrap).find("span");
 		var imgSrc = $(".img-polaroid", slideWrap).attr('src');
 		var isHTML = $("input[name*='[type]']:checked", slideWrap).val() === 'text';
 
@@ -151,22 +199,26 @@ $(function () {
 		var name = $("input[name*='[name]']", slideWrap).val();
 
 		var isHidden = $("input[name*='[status]']:checked", slideWrap).val() === 'hide';
+		var isTemporary = $("input[name*='[status]']:checked", slideWrap).val() === 'time';
 		var timeContainer = $(".admin-custom__time", slideWrap).find("span");
 		var time = $("input[name*='[publication_end_date]']", slideWrap).val();
 
-		if (time || isHidden) {
+		if (time || isHidden || isTemporary) {
 			if (isHidden && $(timeContainer).html() !== 'Скрыт') {
 				$(timeContainer).html('Скрыт');
-			} else if ($(timeContainer).html() !== 'Показ до ' +  time) {
-				time = time.split(' ')[0];
+			} else if (isTemporary && $(timeContainer).html() !== 'Показ до ' +  time) {
+				time = time.split(':')[0];
+				time = time.substring(0, time.length - 2);
 				$(timeContainer).html('Показ до ' + time);
+			} else {
+				$(timeContainer).html('');
 			}
 		}
 
 		$(nameContainer).html() !== name && $(nameContainer).html(name);
 
-		isHTML && $(previewImg).prop('src', '');
-		$(previewImg).attr('src') !== imgSrc && $(previewImg).prop('src', imgSrc);
+		isHTML && $(previewImg).prop('src', '') && $(previewHTML).show();
+		!isHTML && $(previewHTML).hide() && $(previewImg).attr('src') !== imgSrc && $(previewImg).prop('src', imgSrc);
 	}
 
 	function updateSlide(slideWrap) {
@@ -243,10 +295,7 @@ $(function () {
 		var currentTab = $(this).closest(".tab-content");
 
 		var initialData = getInitialSlideData(currentTab);
-
-		//console.log(initialData);
 		resetSlideContent(currentTab, initialData);
-		//updatePreviewLine(currentTab);
 	});
 
 	function toggleTypeContainer(prop, tab) {
