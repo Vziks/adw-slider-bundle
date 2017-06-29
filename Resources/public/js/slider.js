@@ -1,4 +1,7 @@
 $(function () {
+
+	//WARNING! Most of selectors are hard coded due to back functionality
+
 	var tab = '';
 	var slideType = '';
 	var slideTimeType = '';
@@ -67,25 +70,25 @@ $(function () {
 		slidesData[param] = {};
 		slidesData[param].geo = {};
 
-		slidesData[param].slide = slide[0];
-		slidesData[param].slideName = $(slide[0]).find('.admin-custom__slide-name').find('span').html();
-		slidesData[param].imageName = $(slide[0]).find('.admin-custom__media-title').html();
-		slidesData[param].isHTML = $("input[name*='[type]']:checked", slide[0]).val() === 'text';
-		slidesData[param].imgSrc = $(".img-polaroid", slide[0]).attr('src');
-		slidesData[param].isHidden = $("input[name*='[status]']:checked", slide[0]).val() === 'hide';
-		slidesData[param].isTemporary = $("input[name*='[status]']:checked", slide[0]).val() === 'time';
-		slidesData[param].startTime = $("input[name*='[publication_end_date]']", slide[0]).val();
-		slidesData[param].endTime = $("input[name*='[publication_end_date]']", slide[0]).val();
-		slidesData[param].isForAuthorized = $("input[name*='[is_user]']:checked", slide[0]);
-		slidesData[param].interval = $("input[name*='[delay]']", slide[0]).val();
-		slidesData[param].url = $("input[name*='[url]']", slide[0]).val();
-		slidesData[param].slideHTML = $("textarea[name*='[text]']", slide[0]).val();
+		slidesData[param].slide = slide;
+		slidesData[param].slideName = $(slide).find('.admin-custom__slide-name').find('span').html();
+		slidesData[param].imageName = $(slide).find('.admin-custom__media-title').html();
+		slidesData[param].isHTML = $("input[name*='[type]']:checked", slide).val() === 'text';
+		slidesData[param].imgSrc = $(".img-polaroid", slide).attr('src');
+		slidesData[param].isHidden = $("input[name*='[status]']:checked", slide).val() === 'hide';
+		slidesData[param].isTemporary = $("input[name*='[status]']:checked", slide).val() === 'time';
+		slidesData[param].startTime = $("input[name*='[publication_end_date]']", slide).val();
+		slidesData[param].endTime = $("input[name*='[publication_end_date]']", slide).val();
+		slidesData[param].isForAuthorized = $("input[name*='[is_user]']:checked", slide);
+		slidesData[param].interval = $("input[name*='[delay]']", slide).val();
+		slidesData[param].url = $("input[name*='[url]']", slide).val();
+		slidesData[param].slideHTML = $("textarea[name*='[text]']", slide).val();
 
-		var chosenCities = $(slide).find('.select2-choices', '.select2-container').find('div');
-		var chosenCitiesVal = $(slide).find('input', "div[id*='_citys_hidden_inputs_wrap']", '.select2-container');
+		var chosenCities = $(slide).find('.select2-choices').find('div');
+		var chosenCitiesVal = $(slide).find("div[id*='_citys_hidden_inputs_wrap']").find('input');
 
 		if (chosenCities.length > 1) {
-			$.each(chosenCities, function (city, index) {
+			$.each(chosenCities, function (index, city) {
 				slidesData[param].geo.cityName = $(city).html();
 				slidesData[param].geo.cityVal = $(chosenCitiesVal[index]).val();
 			});
@@ -120,6 +123,7 @@ $(function () {
 
 		var geoContainer = $(slide).find("div[id*='_citys_hidden_inputs_wrap']");
 		var geoLabelsContainer = $(slide).find("div[id*='_citys_hidden_inputs_wrap']").parent().find('.select2-choices');
+		var select2CityInput = $(slide).find("input[id*='_autocomplete_input']");
 
 		var isForAuthorizedBtn = $(slide).find("input[name*='[is_user]']");
 
@@ -149,11 +153,8 @@ $(function () {
 		urlContainer.val(data.url);
 		htmlContainer.val(data.slideHTML);
 
-		if (data.isForAuthorized.length) {
-			$(isForAuthorizedBtn).iCheck('check');
-		} else {
-			$(isForAuthorizedBtn).iCheck('uncheck');
-		}
+		data.isForAuthorized.length && $(isForAuthorizedBtn).iCheck('check');
+		!data.isForAuthorized.length && $(isForAuthorizedBtn).iCheck('uncheck');
 
 		$(startTimeContainer).val(data.startTime);
 		$(endTimeContainer).val(data.endTime);
@@ -162,41 +163,16 @@ $(function () {
 		$(geoLabelsContainer).find('.select2-search-choice').remove();
 
 		if (!$.isEmptyObject(data.geo)) {
-			$(slide).find('.select2-input').removeClass('select2-default');
-			$(slide).find('.select2-input').val('');
 			var sessionId = $(geoContainer).attr('id').split('_')[0];
 			var sessionNum = $(geoContainer).attr('id').split('_')[2];
-			$(geoContainer).append('<input type="hidden" name="' + sessionId + '[slides][' + sessionNum + '][citys][]" value="' + data.geo.cityVal + '">');
-			$(slide).find('.select2-search-field').before('<li class="select2-search-choice"><div>' + data.geo.cityName + '</div><a href="#" class="select2-search-choice-close" tabindex="-1"></a></li>');
+			$(select2CityInput).on('change', function (e) {
+				$(geoContainer).append('<input type="hidden" name="' + sessionId + '[slides][' + sessionNum + '][citys][]" value="' + data.geo.cityVal + '">');
+			});
+			$(select2CityInput).select2('data', {id: data.geo.cityVal, label: data.geo.cityName }).change();
 		}
-
-		var inputVals = $(geoContainer).children();
-		//todo: needs further work on overriding autocomplete functionality
-
-		// $('.select2-input').on('keydown', function (evt) {
-		// 	evt.preventDefault();
-		// 	var key = event.keyCode || event.charCode;
-		// 	if( key == 8 || key == 46 ) {
-		// 		var index = inputVals.length - 1;
-		// 		inputVals[index].remove();
-		// 		$(geoLabelsContainer).find('.select2-search-choice')[index].remove();
-		// 		// if (inputVals.length === 1) {
-		// 		// 	$('.select2-input').off('keydown');
-		// 		// }
-		// 	}
-		// });
-
-		$('.select2-search-choice-close').on('click', function (evt) {
-			evt.preventDefault();
-			var index = $(this).parent().index();
-			inputVals[index].remove();
-			$(this).off('click');
-			$(this).parent().remove();
-		});
 
 		var currentTabSaveBtn = $(slide).find('.admin-custom__save-btn');
 		!$(currentTabSaveBtn).hasClass('disabled') && $(currentTabSaveBtn).addClass('disabled') && checkForUpdates(slide);
-
 	}
 
 	function getInitialSlideData(slide) {
