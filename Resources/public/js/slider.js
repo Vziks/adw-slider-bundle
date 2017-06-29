@@ -54,8 +54,8 @@ $(function () {
 		slidesData[param].url = $("input[name*='[url]']", slide[0]).val();
 		slidesData[param].slideHTML = $("textarea[name*='[text]']", slide[0]).val();
 
-		var chosenCities = $('.select2-choices', '.select2-container', slide[0]).find('div');
-		var chosenCitiesVal = $('input', "div[id*='_citys_hidden_inputs_wrap']", '.select2-container', slide[0]);
+		var chosenCities = $(slide).find('.select2-choices', '.select2-container').find('div');
+		var chosenCitiesVal = $(slide).find('input', "div[id*='_citys_hidden_inputs_wrap']", '.select2-container');
 
 		if (chosenCities.length > 1) {
 			$.each(chosenCities, function (city, index) {
@@ -222,7 +222,6 @@ $(function () {
 	}
 
 	function updateSlide(slideWrap) {
-
 		var activeTabImg = $(".img-polaroid", slideWrap);
 
 		if (activeTabImg.length) {
@@ -233,9 +232,7 @@ $(function () {
 	}
 
 	$.each(tabs, function (index, tab) {
-
 		updatePreviewLine(tab);
-
 	});
 
 	$(".admin-custom__table", ".tab-content", ".admin-custom").on('click', function (e) {
