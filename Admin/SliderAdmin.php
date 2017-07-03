@@ -75,6 +75,7 @@ class SliderAdmin extends AbstractAdmin
 
         $formMapper
             ->with('Publish Workflow', ['tab' => false])
+            ->add('id', 'hidden', [])
             ->add('name', null, [
                 'label' => 'Название баннера'
             ])

@@ -147,6 +147,19 @@ class Slider
     }
 
     /**
+     * @param $id
+     * @return int|null
+     */
+    public function setId($id)
+    {
+        if ($id) {
+            return $this->id;
+        }
+
+        return null;
+    }
+
+    /**
      * @param ArrayCollection $slides
      *
      * @return $this

@@ -67,8 +67,16 @@ class SlideAdmin extends AbstractAdmin
 
         $context = $this->container->getParameter('adw_slider.media_context');
 
+        dump($this->getSubject());
+//        die;
+
         $formMapper
             ->with('1')
+            ->add('id', 'hidden', [])
+            ->add('slider.id', 'hidden', [
+                'mapped' => false,
+                'data' => ($this->getSubject() ? $this->getSubject()->getSlider()->getId() : null )
+            ])
             ->add('type', 'choice', [
                 'choices' => [
                     Slide::TYPE_IMG => 'Картинка и ссылка',
@@ -92,8 +100,6 @@ class SlideAdmin extends AbstractAdmin
                 ]
             ])
             ->add('text', null, [
-//            ->add('text', 'hidden', [
-//                'label' => 'HTML-код',
                 'attr' => [
                     'class' => ''
                 ]

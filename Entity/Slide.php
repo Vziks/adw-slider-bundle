@@ -128,6 +128,21 @@ class Slide
     public function getId()
     {
         return $this->id;
+
+    }
+
+
+    /**
+     * @param $id
+     * @return int|null
+     */
+    public function setId($id)
+    {
+        if ($id) {
+            return $this->id;
+        }
+
+        return null;
     }
 
     /**
@@ -271,6 +286,8 @@ class Slide
         $this->slider = $slider;
         return $this;
     }
+
+
 
     /**
      * @return string
