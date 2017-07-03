@@ -1,28 +1,33 @@
-jQuery(document).ready(function() {
+$(function () {
+
+	//WARNING! Most of selectors are hard coded due to back functionality
+
 	var tab = '';
 	var slideType = '';
 	var slideTimeType = '';
 
-	var tabs = jQuery(".tab-content", ".admin-custom");
-	var delBtn = jQuery(".ui-icon-trash", ".tab-content", ".admin-custom");
+	var slidesData = {};
 
-	var moveSlideUpBtn = jQuery(".admin-custom__arrow_up", ".admin-custom");
-	var moveSlideDownBtn = jQuery(".admin-custom__arrow_down", ".admin-custom");
+	var tabs = $(".tab-content", ".admin-custom");
+	var delBtn = $(".ui-icon-trash", ".tab-content", ".admin-custom");
 
-	jQuery(moveSlideUpBtn).click(function(){
-		var current = jQuery(this).closest('.tab-content');
+	var moveSlideUpBtn = $(".admin-custom__arrow_up", ".admin-custom");
+	var moveSlideDownBtn = $(".admin-custom__arrow_down", ".admin-custom");
+
+	$(moveSlideUpBtn).click(function(){
+		var current = $(this).closest('.tab-content');
 		current.prev().before(current);
 	});
-	jQuery(moveSlideDownBtn).click(function(){
-		var current = jQuery(this).closest('.tab-content');
+	$(moveSlideDownBtn).click(function(){
+		var current = $(this).closest('.tab-content');
 		current.next().after(current);
 	});
 
-	jQuery(delBtn).on('click', function (e) {
+	$(delBtn).on('click', function (e) {
 		e.preventDefault();
 
-		var tabToDel = jQuery(this).closest('.tab-content');
-		var slideName = jQuery(tabToDel).find('.admin-custom__slide-name').find('span').html();
+		var tabToDel = $(this).closest('.tab-content');
+		var slideName = $(tabToDel).find('.admin-custom__slide-name').find('span').html();
 
 		var isDeleteConfirmed = confirm('Вы уверены, что хотите удалить слайд ' + slideName + '?');
 
@@ -31,149 +36,289 @@ jQuery(document).ready(function() {
 		}
 
 	});
+	
+	function checkForUpdates(currentTab) {
+		var currentTabInputs = $(currentTab).find('input');
+		var currentTabFileInput = $(currentTab).find("input[type='file']");
+		var currentTabTextarea = $(currentTab).find('textarea');
+		var currentTabSaveBtn = $(currentTab).find('.admin-custom__save-btn');
 
-	jQuery.each(tabs, function (index, tab) {
-		var imgSrc = jQuery(".img-polaroid", tab).attr('src');
-		var title = jQuery("input[name*='[name]']", tab).val();
-		var time = jQuery("input[name*='[publication_end_date]']", tab).val();
-		var isHided = jQuery("input[name*='[status]']:checked", tab).val() === 'hide';
+		var toggleSaveBtn = function () {
+			if (currentTabSaveBtn.hasClass('disabled')) {
+				currentTabSaveBtn.removeClass('disabled');
+			}
 
-		jQuery(".admin-custom__img-preview", tab).find("img").prop('src', imgSrc);
-		jQuery(".admin-custom__slide-name", tab).find("span").html(title);
+			$(this).off('ifChanged', toggleSaveBtn);
+			$(this).off('change', toggleSaveBtn);
 
-		if (time) {
-			time = time.split(' ')[0];
-			jQuery(".admin-custom__time", tab).find("span").html('Показ до ' + time);
+			this !== currentTabFileInput && currentTabFileInput.off('change', toggleSaveBtn);
+			this !== currentTabTextarea && currentTabTextarea.off('change', toggleSaveBtn);
+		};
+
+		$.each(currentTabInputs, function (index, tabInput) {
+			$(tabInput).on('ifChanged', toggleSaveBtn);
+			$(tabInput).on('change', toggleSaveBtn);
+		});
+
+		currentTabFileInput.on('change', toggleSaveBtn);
+		currentTabTextarea.on('change', toggleSaveBtn);
+	}
+
+	function setInitialSlideData(slide) {
+		var param = $(slide).index();
+
+		slidesData[param] = {};
+		slidesData[param].geo = {};
+
+		slidesData[param].slide = slide;
+		slidesData[param].slideName = $(slide).find('.admin-custom__slide-name').find('span').html();
+		slidesData[param].imageName = $(slide).find('.admin-custom__media-title').html();
+		slidesData[param].isHTML = $("input[name*='[type]']:checked", slide).val() === 'text';
+		slidesData[param].imgSrc = $(".img-polaroid", slide).attr('src');
+		slidesData[param].isHidden = $("input[name*='[status]']:checked", slide).val() === 'hide';
+		slidesData[param].isTemporary = $("input[name*='[status]']:checked", slide).val() === 'time';
+		slidesData[param].startTime = $("input[name*='[publication_end_date]']", slide).val();
+		slidesData[param].endTime = $("input[name*='[publication_end_date]']", slide).val();
+		slidesData[param].isForAuthorized = $("input[name*='[is_user]']:checked", slide);
+		slidesData[param].interval = $("input[name*='[delay]']", slide).val();
+		slidesData[param].url = $("input[name*='[url]']", slide).val();
+		slidesData[param].slideHTML = $("textarea[name*='[text]']", slide).val();
+
+		var chosenCities = $(slide).find('.select2-choices').find('div');
+		var chosenCitiesVal = $(slide).find("div[id*='_citys_hidden_inputs_wrap']").find('input');
+
+		if (chosenCities.length > 1) {
+			$.each(chosenCities, function (index, city) {
+				slidesData[param].geo.cityName = $(city).html();
+				slidesData[param].geo.cityVal = $(chosenCitiesVal[index]).val();
+			});
+
+		} else if (chosenCities.length) {
+			slidesData[param].geo.cityName = $(chosenCities).html();
+			slidesData[param].geo.cityVal = $(chosenCitiesVal[0]).val();
+		}
+	}
+
+	function resetSlideContent(slide, data) {
+		var slideName = $(slide).find("input[name*='[name]']");
+
+		var isHTMLbtn = $(slide).find("input[name*='[type]'][value='text']");
+		var isImgBtn = $(slide).find("input[name*='[type]'][value='img']");
+		
+		var slideImg = $(slide).find(".img-polaroid");
+		var slidePreviewImg = $(slide).find(".admin-custom__media-overlay");
+		var slidePreviewTitle = $(slide).find(".admin-custom__media-title");
+		var $uploadForm = $(slide).find(".admin-custom__media-view");
+
+		var isHiddenBtn = $(slide).find("input[name*='[status]'][value='hide']");
+		var isTemporaryBtn = $(slide).find("input[name*='[status]'][value='time']");
+		var isShownBtn = $(slide).find("input[name*='[status]'][value='show']");
+
+		var startTimeContainer = $(slide).find("input[name*='[publication_start_date]']");
+		var endTimeContainer = $(slide).find("input[name*='[publication_end_date]']");
+
+		var intervalContainer = $(slide).find("input[name*='[delay]']");
+		var urlContainer = $(slide).find("input[name*='[url]']");
+		var htmlContainer = $(slide).find("textarea[name*='[text]']");
+
+		var geoContainer = $(slide).find("div[id*='_citys_hidden_inputs_wrap']");
+		var geoLabelsContainer = $(slide).find("div[id*='_citys_hidden_inputs_wrap']").parent().find('.select2-choices');
+		var select2CityInput = $(slide).find("input[id*='_autocomplete_input']");
+
+		var isForAuthorizedBtn = $(slide).find("input[name*='[is_user]']");
+
+		$(slideName).val(data.slideName);
+		
+		data.isHTML && $(isHTMLbtn).iCheck('check');
+		!data.isHTML && $(isImgBtn).iCheck('check');
+
+		if (!data.imageName) {
+			$uploadForm.removeClass('active');
+			slideImg.remove();
+			slidePreviewImg.css('backgroundImage', null);
+			slidePreviewTitle.remove();
+		} else {
+			slideImg.prop('src', data.imgSrc);
+			slidePreviewImg.css('backgroundImage', 'url(' + data.imgSrc + ')');
+			slidePreviewTitle.html(data.imageName);
 		}
 
-		if (isHided) {
-			jQuery(".admin-custom__time", tab).find("span").html('Скрыт');
+		$uploadForm.find('input[type="file"]').val('');
+
+		!data.isTemporary && data.isHidden && $(isHiddenBtn).iCheck('check');
+		!data.isHidden && data.isTemporary && $(isTemporaryBtn).iCheck('check');
+		!data.isHidden && !data.isTemporary && $(isShownBtn).iCheck('check');
+
+		intervalContainer.val(data.interval);
+		urlContainer.val(data.url);
+		htmlContainer.val(data.slideHTML);
+
+		data.isForAuthorized.length && $(isForAuthorizedBtn).iCheck('check');
+		!data.isForAuthorized.length && $(isForAuthorizedBtn).iCheck('uncheck');
+
+		$(startTimeContainer).val(data.startTime);
+		$(endTimeContainer).val(data.endTime);
+
+		$(geoContainer).children().remove();
+		$(geoLabelsContainer).find('.select2-search-choice').remove();
+
+		if (!$.isEmptyObject(data.geo)) {
+			var sessionId = $(geoContainer).attr('id').split('_')[0];
+			var sessionNum = $(geoContainer).attr('id').split('_')[2];
+			$(select2CityInput).on('change', function (e) {
+				$(geoContainer).append('<input type="hidden" name="' + sessionId + '[slides][' + sessionNum + '][citys][]" value="' + data.geo.cityVal + '">');
+			});
+			$(select2CityInput).select2('data', {id: data.geo.cityVal, label: data.geo.cityName }).change();
 		}
 
-	});
+		var currentTabSaveBtn = $(slide).find('.admin-custom__save-btn');
+		!$(currentTabSaveBtn).hasClass('disabled') && $(currentTabSaveBtn).addClass('disabled') && checkForUpdates(slide);
+	}
 
-	jQuery(".admin-custom__table", ".tab-content", ".admin-custom").on('click', function (e) {
-		if (jQuery(e.target).hasClass("ui-icon")) {
+	function getInitialSlideData(slide) {
+		var param = $(slide).index();
+
+		if (!slidesData[param]) {
 			return false;
 		}
 
-		jQuery(".tab-content", ".admin-custom").removeClass('active');
+		return slidesData[param];
+	}
 
-		var tab = jQuery(this).closest(".tab-content", ".admin-custom");
-		jQuery(tab).toggleClass('active');
+	function updatePreviewLine(slideWrap) {
+		var previewImg = $(".admin-custom__img-preview", slideWrap).find("img");
+		var previewHTML = $(".admin-custom__img-preview", slideWrap).find("span");
+		var imgSrc = $(".img-polaroid", slideWrap).attr('src');
+		var isHTML = $("input[name*='[type]']:checked", slideWrap).val() === 'text';
 
-		var activeTab = jQuery(".tab-content.active", ".admin-custom");
+		var nameContainer = $(".admin-custom__slide-name", slideWrap).find("span");
+		var name = $("input[name*='[name]']", slideWrap).val();
 
-		var activeTabImg = jQuery(".img-polaroid", activeTab);
+		var isHidden = $("input[name*='[status]']:checked", slideWrap).val() === 'hide';
+		var isTemporary = $("input[name*='[status]']:checked", slideWrap).val() === 'time';
+		var timeContainer = $(".admin-custom__time", slideWrap).find("span");
+		var time = $("input[name*='[publication_end_date]']", slideWrap).val();
 
-		if (activeTabImg.length) {
-			var previewWrap = $('.admin-custom__media-preview', activeTab);
-			var previewOverlay = $(previewWrap).find('.admin-custom__media-overlay');
-
-			$(previewOverlay).css('backgroundImage', 'url(' + $(activeTabImg).attr('src') + ')');
+		if (time || isHidden || isTemporary) {
+			if (isHidden && $(timeContainer).html() !== 'Скрыт') {
+				$(timeContainer).html('Скрыт');
+			} else if (isTemporary && $(timeContainer).html() !== 'Показ до ' +  time) {
+				time = time.split(':')[0];
+				time = time.substring(0, time.length - 2);
+				$(timeContainer).html('Показ до ' + time);
+			} else {
+				$(timeContainer).html('');
+			}
 		}
 
-		slideType = jQuery("input[name*='[type]']:checked", tab).val();
-		slideTimeType = jQuery("input[name*='[status]']:checked", tab).val();
+		$(nameContainer).html() !== name && $(nameContainer).html(name);
+
+		isHTML && $(previewImg).prop('src', '') && $(previewHTML).show();
+		!isHTML && $(previewHTML).hide() && $(previewImg).attr('src') !== imgSrc && $(previewImg).prop('src', imgSrc);
+	}
+
+	function updateSlide(slideWrap) {
+		var activeTabImg = $(".img-polaroid", slideWrap);
+
+		if (activeTabImg.length) {
+			var previewOverlay = $(slideWrap).find('.admin-custom__media-overlay');
+			$(previewOverlay).css('backgroundImage', 'url(' + $(activeTabImg).attr('src') + ')');
+		}
+	}
+
+	$.each(tabs, function (index, tab) {
+		updatePreviewLine(tab);
+	});
+
+	$(".admin-custom__table", ".tab-content", ".admin-custom").on('click', function (e) {
+		if ($(e.target).hasClass("ui-icon")) {
+			return false;
+		}
+
+		var activeTab = $(".tab-content.active", ".admin-custom");
+		updatePreviewLine(activeTab);
+
+		$(tabs).removeClass('active');
+
+		var tab = $(this).closest(".tab-content", ".admin-custom");
+		$(tab).addClass('active');
+
+		slideType = $("input[name*='[type]']:checked", tab).val();
+		slideTimeType = $("input[name*='[status]']:checked", tab).val();
 
 		toggleTypeContainer(slideType, tab);
 		toggleTimeContainer(slideTimeType, tab);
 
-		var slideTypeBtns = jQuery("label[for*='_type']", tab);
-		var slideTypeBtns2 = jQuery(".iCheck-helper", tab);
-		jQuery(slideTypeBtns).click(function (e) {
-			slideType = jQuery("input[name*='[type]']:checked", tab).val();
+		var slideTypeBtns = $("input[name*='[type]']", tab);
+		var slideTimeTypeBtns = $("input[name*='[status]']", tab);
+
+		$(slideTypeBtns).on('ifChecked', function (e) {
+			slideType = $(this).val();
 			toggleTypeContainer(slideType, tab);
 		});
-
-		jQuery(slideTypeBtns2).click(function (e) {
-			slideType = jQuery("input[name*='[type]']:checked", tab).val();
-			var slideStatus = jQuery("input[name*='[status]']:checked", tab).val();
-
-			toggleTypeContainer(slideType, tab);
-			toggleTimeContainer(slideStatus, tab);
-
-		});
-
-		var slideTimeBtns = jQuery("label[for*='_status']", tab);
-		jQuery(slideTimeBtns).click(function (e) {
-			slideTimeType = jQuery("input[name*='[status]']:checked", tab).val();
+		$(slideTimeTypeBtns).on('ifChecked', function (e) {
+			slideTimeType = $(this).val();
 			toggleTimeContainer(slideTimeType, tab);
 		});
+
+		updateSlide(tab);
+		!getInitialSlideData(tab) && setInitialSlideData(tab);
+		checkForUpdates(tab);
 	});
 
-	jQuery(".ui-icon", ".admin-custom__table", ".admin-custom").on('click', function () {
-		jQuery(this).closest(".tab-content").removeClass('active');
+	$(".admin-custom__save-btn", ".admin-custom").on('click', function () {
+		if ($(this).hasClass('disabled')) {
+			return false;
+		}
+		var currentTab = $(this).closest(".tab-content");
+		updatePreviewLine(currentTab);
+		setInitialSlideData(currentTab);
+
+		$(currentTab).removeClass('active');
+		$(this).addClass('disabled');
 	});
 
-	jQuery(".admin-custom__save-btn", ".admin-custom").on('click', function () {
-		jQuery(this).closest(".tab-content").removeClass('active');
+	$(".admin-custom__reset-btn", ".admin-custom").on('click', function () {
+		var currentTab = $(this).closest(".tab-content");
 
-		var currentTab = jQuery(this).closest(".tab-content");
-		var currentImgSrc = jQuery(".img-polaroid", currentTab).attr('src');
-		var currentPreviewImg = jQuery(".admin-custom__img-preview", currentTab).find("img");
-
-		var currentTitle = jQuery("input[name*='[name]']", currentTab).val();
-
-		if (currentImgSrc !== currentPreviewImg.attr('src')) {
-			currentPreviewImg.prop('src', currentImgSrc);
-		}
-
-		if (currentTitle !== jQuery(".admin-custom__slide-name", currentTab).find("span").html()) {
-			jQuery(".admin-custom__slide-name", currentTab).find("span").html(currentTitle);
-		}
-
-		var currentTime = jQuery("input[name*='[publication_end_date]']", currentTab).val();
-		var isHided = jQuery("input[name*='[status]']:checked", currentTab).val() === 'hide';
-
-		if (currentTime) {
-			currentTime = currentTime.split(' ')[0];
-			if ( !jQuery(".admin-custom__time", currentTab).find("span").length || 'Показ до ' +  currentTime !== jQuery(".admin-custom__time", currentTab).find("span").html()) {
-				jQuery(".admin-custom__time", currentTab).find("span").html('Показ до ' +  currentTime);
-			}
-		}
-
-		if (isHided) {
-			if (!jQuery(".admin-custom__time", currentTab).find("span").length || jQuery(".admin-custom__time", currentTab).find("span").html() !== 'Скрыт') {
-				jQuery(".admin-custom__time", currentTab).find("span").html('Скрыт');
-			}
-		}
-
-		jQuery(currentTab).removeClass('active');
+		var initialData = getInitialSlideData(currentTab);
+		resetSlideContent(currentTab, initialData);
 	});
 
 	function toggleTypeContainer(prop, tab) {
 		if (prop === 'img') {
-			jQuery("div[class*='_slides-media']", tab).show();
-			jQuery("div[class*='_slides-url']", tab).show();
-			jQuery("div[class*='_slides-text']", tab).hide();
+			$("div[class*='_slides-media']", tab).show();
+			$("div[class*='_slides-url']", tab).show();
+			$("div[class*='_slides-text']", tab).hide();
 		} else {
-			jQuery("div[class*='_slides-text']", tab).show();
-			jQuery("div[class*='_slides-media']", tab).hide();
-			jQuery("div[class*='_slides-url']", tab).hide();
+			$("div[class*='_slides-text']", tab).show();
+			$("div[class*='_slides-media']", tab).hide();
+			$("div[class*='_slides-url']", tab).hide();
 		}
 	}
 
 	function toggleTimeContainer(prop, tab) {
 		if (prop === 'time') {
-			jQuery("div[class*='_slides-is_user']", tab).show();
-			jQuery("div[class*='_slides-delay']", tab).show();
-			jQuery("div[class*='_slides-publication_start_date']", tab).show();
-			jQuery("div[class*='_slides-publication_end_date']", tab).show();
+			$("div[class*='_slides-is_user']", tab).show();
+			$("div[class*='_slides-delay']", tab).show();
+			$("div[class*='_slides-citys']", tab).show();
+			$("div[class*='_slides-name']", tab).show();
+			$("div[class*='_slides-publication_start_date']", tab).show();
+			$("div[class*='_slides-publication_end_date']", tab).show();
 		} else if (prop === 'hide') {
-			jQuery("div[class*='_slides-publication_end_date']", tab).hide();
-			jQuery("div[class*='_slides-publication_start_date']", tab).hide();
-			jQuery("div[class*='_slides-is_user']", tab).hide();
-			jQuery("div[class*='_slides-delay']", tab).hide();
-			jQuery("div[class*='_slides-citys']", tab).hide();
-			jQuery("div[class*='_slides-name']", tab).hide();
+			$("div[class*='_slides-publication_end_date']", tab).hide();
+			$("div[class*='_slides-publication_start_date']", tab).hide();
+			$("div[class*='_slides-is_user']", tab).hide();
+			$("div[class*='_slides-delay']", tab).hide();
+			$("div[class*='_slides-citys']", tab).hide();
+			$("div[class*='_slides-name']", tab).hide();
 		} else {
-			jQuery("div[class*='_slides-is_user']", tab).show();
-			jQuery("div[class*='_slides-delay']", tab).show();
-			jQuery("div[class*='_slides-citys']", tab).show();
-			jQuery("div[class*='_slides-name']", tab).show();
-			jQuery("div[class*='_slides-publication_end_date']", tab).hide();
-			jQuery("div[class*='_slides-publication_start_date']", tab).hide();
+			$("div[class*='_slides-is_user']", tab).show();
+			$("div[class*='_slides-delay']", tab).show();
+			$("div[class*='_slides-citys']", tab).show();
+			$("div[class*='_slides-name']", tab).show();
+			$("div[class*='_slides-publication_end_date']", tab).hide();
+			$("div[class*='_slides-publication_start_date']", tab).hide();
 		}
 	}
 });

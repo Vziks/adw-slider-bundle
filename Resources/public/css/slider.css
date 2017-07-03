@@ -25,6 +25,7 @@ body.fixed .content-header .navbar.stuck {
 	display: block;
 	max-height: 80%;
 	max-width: 80%;
+	margin: 0 auto;
 }
 
 .admin-custom .ui-icon {
@@ -42,12 +43,17 @@ body.fixed .content-header .navbar.stuck {
 	cursor: pointer;
 }
 
+.admin-custom__tr:hover .admin-custom__slide-name span {
+	text-decoration: underline;
+}
+
 .admin-custom__del {
 	display: none;
 }
 
 .admin-custom__tr_header {
 	border-bottom: 1px solid #000000;
+	cursor: default;
 }
 
 .admin-custom__tr_header:hover {
@@ -156,9 +162,26 @@ body.fixed .content-header .navbar.stuck {
 	display: none;
 }
 
+.admin-custom .admin-custom__img-preview {
+	text-align: center;
+}
+
+.admin-custom .admin-custom__img-preview span {
+	display: inline-block;
+	width: auto;
+	background-color: #e8e8e8;
+	text-align: center;
+	font-size: 14px;
+	padding: 5px 10px;
+}
+
 .admin-custom .tab-content.active .admin-custom__time {
 	display: none;
 }
+.admin-custom .admin-custom__time span {
+	margin-left: 10px;
+}
+
 
 .admin-custom .tab-content.active .admin-custom__slide-name {
 	display: none;
@@ -250,6 +273,14 @@ body.fixed .content-header .navbar.stuck {
 	right: -16px;
 	content: '\2014';
 	font-size: 14px;
+}
+
+.admin-custom__table th {
+	font-weight: 400;
+}
+
+.admin-custom__table .admin-custom__tr_header th {
+	font-weight: 900;
 }
 
 div[id*="__banner-width"] .form-group {
@@ -412,6 +443,11 @@ div[class$="_slides-url"] input {
 	border: none;
 }
 
+.admin-custom__media-view.is-dragover {
+	background-color: #FFFFFF;
+	opacity: 0.5;
+}
+
 .admin-custom__media-view.active .admin-custom__media-preview {
 	display: block;
 	height: 350px;
@@ -457,7 +493,7 @@ div[class$="_slides-url"] input {
 
 .admin-custom__media-view.active .admin-custom__media-title {
 	display: inline-block;
-	width: 60%;
+	width: 50%;
 	height: 40px;
 	padding-top: 10px;
 	vertical-align: middle;
@@ -502,11 +538,32 @@ div[class$="_slides-url"] input {
 	cursor: pointer;
 }
 
+.admin-custom__save-btn.disabled {
+	cursor: not-allowed;
+	opacity: .65;
+}
+
 .tab-content.active .admin-custom__save-btn {
+	display: inline-block;
+}
+
+.admin-custom__reset-btn {
+	display: none;
+	font-size: 14px;
+	position: absolute;
+	left: 180px;
+	bottom: 17px;
+	width: auto;
+	color: #000000;
+	padding: 5px 10px;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.tab-content.active .admin-custom__reset-btn {
 	display: inline-block;
 }
 
 .form-actions.stuck {
 	z-index: 1000;
 }
-

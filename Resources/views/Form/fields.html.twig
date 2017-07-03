@@ -43,8 +43,28 @@
 
             <script type="text/javascript">
 
-				$('#{{ form.vars.id  }} input[type="file"]').change(function(e){
+	            var droppedFiles = false;
+	            var $uploadForm = $('#{{ form.vars.id  }}');
+
+	            $uploadForm.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+		            e.preventDefault();
+		            e.stopPropagation();
+	            })
+		            .on('dragover dragenter', function(evt) {
+			            $(this).addClass('is-dragover');
+		            })
+		            .on('dragleave dragend drop', function(evt) {
+			            $(this).removeClass('is-dragover');
+		            })
+		            .on('drop', function(e) {
+			            droppedFiles = e.originalEvent.dataTransfer.files;
+			            $(this).find('input[type="file"]').prop('files', droppedFiles);
+		            });
+
+				$uploadForm.find('input[type="file"]').change(function(e){
 					var files = e.target.files; // FileList object
+
+					var activeUploadForm = $(this).closest('.admin-custom__media-view');
 
 					// Loop through the FileList and render image files as thumbnails.
 					for (var i = 0, f; f = files[i]; i++) {
@@ -72,7 +92,7 @@
 								$(im).on('load', function (e) {
 
 									var shortestEdge = Math.min(this.width, this.height);
-									var previewWrap = $('#{{ form.vars.id }} .admin-custom__media-preview');
+									var previewWrap = activeUploadForm.find('.admin-custom__media-preview');
 
 									if (shortestEdge === this.width) {
 										imageClass = 'short-width';
@@ -99,7 +119,7 @@
 									$(previewOverlay).css('backgroundImage', 'url(' + srcToPast + ')');
 									$(previewOverlay).addClass(imageClass);
 
-									$('#{{ form.vars.id }}').addClass('active');
+									activeUploadForm.addClass('active');
 								});
 							};
 						})(f);
