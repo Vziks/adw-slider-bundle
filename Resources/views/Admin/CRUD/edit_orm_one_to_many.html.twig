@@ -13,7 +13,34 @@ file that was distributed with this source code.
         {{ element|render_relation_element(sonata_admin.field_description) }}
     {% endfor %}
 {% else %}
+
+    {% set display_create_button = sonata_admin.field_description.associationadmin.hasroute('create')
+    and sonata_admin.field_description.associationadmin.isGranted('CREATE')
+    and btn_add
+    and (
+    sonata_admin.field_description.options.limit is not defined or
+    form.children|length < sonata_admin.field_description.options.limit
+    ) %}
+
     <div id="field_container_{{ id }}" class="field-container">
+
+        {% if display_create_button %}
+            <span id="field_actions_{{ id }}" >
+                    <a
+                            href="{{ sonata_admin.field_description.associationadmin.generateUrl(
+                            'create',
+                            sonata_admin.field_description.getOption('link_parameters', {})
+                            ) }}"
+                            onclick="return start_field_retrieve_{{ id }}(this);"
+                            class="btn btn-success btn-sm sonata-ba-action"
+                            title="{{ btn_add|trans({}, btn_catalogue) }}"
+                    >
+                        <i class="fa fa-plus-circle"></i>
+                        {{ btn_add|trans({}, btn_catalogue) }}
+                    </a>
+                </span>
+        {% endif %}
+
         <span id="field_widget_{{ id }}" >
             {% if sonata_admin.edit == 'inline' %}
                 {% if sonata_admin.inline == 'table' %}
@@ -30,13 +57,7 @@ file that was distributed with this source code.
 
         </span>
 
-        {% set display_create_button = sonata_admin.field_description.associationadmin.hasroute('create')
-        and sonata_admin.field_description.associationadmin.isGranted('CREATE')
-        and btn_add
-        and (
-        sonata_admin.field_description.options.limit is not defined or
-        form.children|length < sonata_admin.field_description.options.limit
-        ) %}
+
 
         {% if sonata_admin.edit == 'inline' %}
 
