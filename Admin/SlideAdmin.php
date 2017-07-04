@@ -67,7 +67,7 @@ class SlideAdmin extends AbstractAdmin
 
         $context = $this->container->getParameter('adw_slider.media_context');
 
-        dump($this->getSubject());
+//        dump($this->getSubject());
 //        die;
 
         $formMapper
