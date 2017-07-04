@@ -6,10 +6,13 @@ use ADW\SliderBundle\Entity\Slider;
 use ADW\SliderBundle\Form\Type\PositionedSlideMediaCollectionType;
 use ADW\SliderBundle\Form\Type\PositionedSlideMediaType;
 use ADW\SliderBundle\Traits\AdminServiceContainerTrait;
+use Doctrine\ORM\QueryBuilder;
+use phpDocumentor\Reflection\Types\Integer;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\AdminBundle\Form\Type\Filter\NumberType;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Sonata\CoreBundle\Model\Metadata;
 use Sonata\AdminBundle\Route\RouteCollection;
@@ -31,6 +34,33 @@ class SliderAdmin extends AbstractAdmin
     public $supportsPreviewMode = true;
 
 
+    public function createQuery($context = 'list')
+    {
+        {
+            /** @var QueryBuilder $query */
+            $query = parent::createQuery($context);
+
+//            $query
+//                ->select('o')
+//                ->addSelect('count(sl.id) AS HIDDEN r')
+//                ->join($query->getRootAlias() . '.slides', 'sl')
+////                ->addSelect('count(sl.id)')
+//            ->groupBy($query->getRootAlias() . '.id')
+//            ;
+////                ->addSelect($query->getRootAlias() . '.name' )
+////                $query->add('select', 'm', false )
+////            ;
+//
+//            dump($query->getQuery()->getSQL());
+//            dump($query->getRootAlias());
+
+//            die;
+
+            return $query;
+        }
+    }
+
+
     /**
      * @param DatagridMapper $datagridMapper
      */
@@ -47,13 +77,65 @@ class SliderAdmin extends AbstractAdmin
      */
     protected function configureListFields(ListMapper $listMapper)
     {
+
         $listMapper
             ->add('id')
-            ->add('name')
-            ->add('sysName')
+            ->addIdentifier('name')
+            ->add('height', null, array(
+                'sortable' => true,
+                'template' => 'ADWSliderBundle:Admin/CRUD:list_format_slider.html.twig',
+                    'label' => 'Формат'))
+            ->add('countSlide', null, array('associated_tostring' => 'getCountSlide','label' => 'Слайдов'))
+            ->add('is_show', null, array(
+                'editable' => true
+            ))
+//            ->add('CountSlide', 'doctrine_orm_callback', array(
+//                'callback' => function ($queryBuilder, $alias, $field, $value) {
+//
+//                    dump($value);
+//                    die;
+//
+//                    if (!$value || !isset($value['value']) || !isset($value['value']['type']) || !$value['value']['type']) {
+//                        return;
+//                    }
+//
+//                    $operators = array(
+//                        NumberType::TYPE_EQUAL => '=',
+//                        NumberType::TYPE_GREATER_EQUAL => '>=',
+//                        NumberType::TYPE_GREATER_THAN => '>',
+//                        NumberType::TYPE_LESS_EQUAL => '<=',
+//                        NumberType::TYPE_LESS_THAN => '<',
+//                    );
+//
+//                    $operator = $operators[$value['value']['type']];
+//
+//                    $queryBuilder->andWhere('SIZE(' . $alias . '.comments) ' . $operator . ' :size');
+//                    $queryBuilder->setParameter('size', $value['value']['value']);
+//                },
+//                'field_type' => 'sonata_type_filter_number',
+//            ))
+//            ->add('CountSlide', null, array(
+//                'show_filter' => true
+//            ))
+//            ->add('CountSlide', null, array(
+//                'sortable' => 'CountSlide',
+//            ))
+
+            //                'callback' => function ($admin, $property, $value) {
+//                    $datagrid = $admin->getDatagrid();
+//                    /**
+//                     * @var QueryBuilder $queryBuilder
+//                     */
+//                    $queryBuilder = $datagrid->getQuery();
+//                    $queryBuilder
+//                        ->where( $queryBuilder->expr()->isNull($queryBuilder->getRootAliases()[0] . '.city'));
+//                    $datagrid->setValue($property, null, $value);
+//                },
+//                'to_string_callback' => function($entity, $property) {
+//                    return sprintf('ID: %s, Город %s, Префикс (%s)', $entity->getId(), $entity->getName(), $entity->getPrefix());
+//                }
             ->add('_action', 'actions', array(
                 'actions' => array(
-//                    'show' => array(),
                     'edit' => array(),
                     'delete' => array(),
                 ),
@@ -86,7 +168,8 @@ class SliderAdmin extends AbstractAdmin
                     ->add('height', null, ($id && $this->getSubject() instanceof Slider ? $arrayAttr : []))
             )
             ->add('description', null, [
-                'label' => 'Описание баннера (не показывается на сайте)'
+                'label' => 'Описание баннера (не показывается на сайте)',
+                'required' => false
             ])
             ->add('is_show')
             ->add('slides',

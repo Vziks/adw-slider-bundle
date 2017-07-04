@@ -59,7 +59,7 @@ class Slider
     /**
      * @var string
      *
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
     protected $description;
 
@@ -257,5 +257,23 @@ class Slider
         $this->width = $width;
         return $this;
     }
+
+
+    /**
+     * @return string
+     */
+    public function getFormat(){
+//        return $this->getHeight() . 'x' .$this->getWidth() . 'px';
+        return $this->getHeight() . $this->getWidth();
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getCountSlide(){
+        return count($this->getSlides());
+    }
+
 
 }
