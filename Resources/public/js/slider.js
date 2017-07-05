@@ -7,6 +7,8 @@ $(function () {
 	var slideTimeType = '';
 
 	var slidesData = {};
+	var dataObj = {};
+	var slidesCurrentData = {};
 
 	var tabs = $(".tab-content", ".admin-custom");
 	var delBtn = $(".ui-icon-trash", ".tab-content", ".admin-custom");
@@ -64,39 +66,42 @@ $(function () {
 		currentTabTextarea.on('change', toggleSaveBtn);
 	}
 
-	function setInitialSlideData(slide) {
+	function setSlideData(slide, type) {
+		dataObj = type === 'current' ? slidesCurrentData : slidesData;
+
 		var param = $(slide).index();
 
-		slidesData[param] = {};
-		slidesData[param].geo = {};
+		dataObj[param] = {};
 
-		slidesData[param].slide = slide;
-		slidesData[param].slideName = $(slide).find('.admin-custom__slide-name').find('span').html();
-		slidesData[param].imageName = $(slide).find('.admin-custom__media-title').html();
-		slidesData[param].isHTML = $("input[name*='[type]']:checked", slide).val() === 'text';
-		slidesData[param].imgSrc = $(".img-polaroid", slide).attr('src');
-		slidesData[param].isHidden = $("input[name*='[status]']:checked", slide).val() === 'hide';
-		slidesData[param].isTemporary = $("input[name*='[status]']:checked", slide).val() === 'time';
-		slidesData[param].startTime = $("input[name*='[publication_end_date]']", slide).val();
-		slidesData[param].endTime = $("input[name*='[publication_end_date]']", slide).val();
-		slidesData[param].isForAuthorized = $("input[name*='[is_user]']:checked", slide);
-		slidesData[param].interval = $("input[name*='[delay]']", slide).val();
-		slidesData[param].url = $("input[name*='[url]']", slide).val();
-		slidesData[param].slideHTML = $("textarea[name*='[text]']", slide).val();
+		dataObj[param].sliderId = '';
+		dataObj[param].slideId = '';
+		dataObj[param].isHTML = $("input[name*='[type]']:checked", slide).val() === 'text';
+		dataObj[param].url = $("input[name*='[url]']", slide).val();
+		dataObj[param].slideHTML = $("textarea[name*='[text]']", slide).val();
+		dataObj[param].imageName = $(slide).find('.admin-custom__media-title').html();
+		dataObj[param].imageSrc = $(".img-polaroid", slide).attr('src');
+		dataObj[param].isHidden = $("input[name*='[status]']:checked", slide).val() === 'hide';
+		dataObj[param].isTemporary = $("input[name*='[status]']:checked", slide).val() === 'time';
+		dataObj[param].isForAuthorized = $("input[name*='[is_user]']:checked", slide).val() > 0;
+		dataObj[param].geo = [];
+		dataObj[param].startTime = $("input[name*='[publication_end_date]']", slide).val();
+		dataObj[param].endTime = $("input[name*='[publication_end_date]']", slide).val();
+		dataObj[param].interval = $("input[name*='[delay]']", slide).val();
+		dataObj[param].slideName = $(slide).find('.admin-custom__slide-name').find('span').html();
 
 		var chosenCities = $(slide).find('.select2-choices').find('div');
 		var chosenCitiesVal = $(slide).find("div[id*='_citys_hidden_inputs_wrap']").find('input');
 
-		if (chosenCities.length > 1) {
-			$.each(chosenCities, function (index, city) {
-				slidesData[param].geo.cityName = $(city).html();
-				slidesData[param].geo.cityVal = $(chosenCitiesVal[index]).val();
+		var len = chosenCities.length;
+		for (var i = 0; i < len; i++) {
+			dataObj[param].geo.push({
+				id: $(chosenCitiesVal[i]).val(),
+				label: $(chosenCities[i]).html()
 			});
-
-		} else if (chosenCities.length) {
-			slidesData[param].geo.cityName = $(chosenCities).html();
-			slidesData[param].geo.cityVal = $(chosenCitiesVal[0]).val();
 		}
+
+		slidesCurrentData = type === 'current' ? dataObj : slidesCurrentData;
+		slidesData = type === 'current' ? slidesData : dataObj;
 	}
 
 	function resetSlideContent(slide, data) {
@@ -122,7 +127,6 @@ $(function () {
 		var htmlContainer = $(slide).find("textarea[name*='[text]']");
 
 		var geoContainer = $(slide).find("div[id*='_citys_hidden_inputs_wrap']");
-		var geoLabelsContainer = $(slide).find("div[id*='_citys_hidden_inputs_wrap']").parent().find('.select2-choices');
 		var select2CityInput = $(slide).find("input[id*='_autocomplete_input']");
 
 		var isForAuthorizedBtn = $(slide).find("input[name*='[is_user]']");
@@ -138,8 +142,8 @@ $(function () {
 			slidePreviewImg.css('backgroundImage', null);
 			slidePreviewTitle.remove();
 		} else {
-			slideImg.prop('src', data.imgSrc);
-			slidePreviewImg.css('backgroundImage', 'url(' + data.imgSrc + ')');
+			slideImg.prop('src', data.imageSrc);
+			slidePreviewImg.css('backgroundImage', 'url(' + data.imageSrc + ')');
 			slidePreviewTitle.html(data.imageName);
 		}
 
@@ -153,22 +157,42 @@ $(function () {
 		urlContainer.val(data.url);
 		htmlContainer.val(data.slideHTML);
 
-		data.isForAuthorized.length && $(isForAuthorizedBtn).iCheck('check');
-		!data.isForAuthorized.length && $(isForAuthorizedBtn).iCheck('uncheck');
+		data.isForAuthorized && $(isForAuthorizedBtn).iCheck('check');
+		!data.isForAuthorized && $(isForAuthorizedBtn).iCheck('uncheck');
 
 		$(startTimeContainer).val(data.startTime);
 		$(endTimeContainer).val(data.endTime);
 
-		$(geoContainer).children().remove();
-		$(geoLabelsContainer).find('.select2-search-choice').remove();
-
-		if (!$.isEmptyObject(data.geo)) {
+		if (data.geo.length) {
 			var sessionId = $(geoContainer).attr('id').split('_')[0];
 			var sessionNum = $(geoContainer).attr('id').split('_')[2];
+
+			var removedItems = [];
+			var itemsToAppend = data.geo;
+
 			$(select2CityInput).on('change', function (e) {
-				$(geoContainer).append('<input type="hidden" name="' + sessionId + '[slides][' + sessionNum + '][citys][]" value="' + data.geo.cityVal + '">');
+				$(geoContainer).children().remove();
+
+				if (undefined !== e.removed && null !== e.removed) {
+					if ($.inArray( e.removed, removedItems ) === -1) {
+						removedItems.push(e.removed);
+					}
+
+					var length = removedItems.length;
+					for (var i = 0; i < length; i++) {
+						$(geoContainer).find('[value="'+data.geo[i].id +'"]').remove();
+
+						itemsToAppend = itemsToAppend.filter(function(item) { return item !== removedItems[i]; });
+					}
+				}
+
+				for (var j = 0; j < itemsToAppend.length; j++) {
+					$(geoContainer).append('<input type="hidden" name="' + sessionId + '[slides][' + sessionNum + '][citys][]" value="' + itemsToAppend[j].id + '">');
+				}
+
 			});
-			$(select2CityInput).select2('data', {id: data.geo.cityVal, label: data.geo.cityName }).change();
+
+			$(select2CityInput).empty().select2('data', data.geo).change();
 		}
 
 		var currentTabSaveBtn = $(slide).find('.admin-custom__save-btn');
@@ -183,6 +207,16 @@ $(function () {
 		}
 
 		return slidesData[param];
+	}
+
+	function getCurrentSlideData(slide) {
+		var param = $(slide).index();
+
+		if (!slidesCurrentData[param]) {
+			return false;
+		}
+
+		return slidesCurrentData[param];
 	}
 
 	function updatePreviewLine(slideWrap) {
@@ -262,7 +296,7 @@ $(function () {
 		});
 
 		updateSlide(tab);
-		!getInitialSlideData(tab) && setInitialSlideData(tab);
+		!getInitialSlideData(tab) && setSlideData(tab);
 		checkForUpdates(tab);
 	});
 
@@ -270,12 +304,36 @@ $(function () {
 		if ($(this).hasClass('disabled')) {
 			return false;
 		}
-		var currentTab = $(this).closest(".tab-content");
-		updatePreviewLine(currentTab);
-		setInitialSlideData(currentTab);
 
-		$(currentTab).removeClass('active');
-		$(this).addClass('disabled');
+		var urlToSendData = $(this).data('url');
+		var currentTab = $(this).closest(".tab-content");
+		var that = this;
+
+		setSlideData(currentTab, 'current');
+		var dataToSend = getCurrentSlideData(currentTab);
+
+		$.ajax({
+			type: "post",
+			data: dataToSend,
+			url: urlToSendData,
+			dataType: 'json',
+			beforeSend: function () {
+				$(that).addClass('disabled');
+			}
+		}).done(function (data) {
+			if (data.response) {
+				$(currentTab).removeClass('active');
+				updatePreviewLine(currentTab);
+				setSlideData(currentTab);
+			} else {
+				$(that).removeClass('disabled');
+				console.log('error');
+			}
+		}).fail(function () {
+			$(that).removeClass('disabled');
+			console.log('error');
+		});
+
 	});
 
 	$(".admin-custom__reset-btn", ".admin-custom").on('click', function () {
