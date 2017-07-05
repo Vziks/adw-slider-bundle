@@ -73,8 +73,8 @@ $(function () {
 
 		dataObj[param] = {};
 
-		dataObj[param].sliderId = '';
-		dataObj[param].slideId = '';
+		dataObj[param].sliderId = $(slide).find("div[class*='_slides-slider__id']").find('input').val();
+		dataObj[param].slideId = $(slide).find("div[class*='_slides-id']").find('input').val();
 		dataObj[param].isHTML = $("input[name*='[type]']:checked", slide).val() === 'text';
 		dataObj[param].url = $("input[name*='[url]']", slide).val();
 		dataObj[param].slideHTML = $("textarea[name*='[text]']", slide).val();
