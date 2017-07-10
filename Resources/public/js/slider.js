@@ -127,7 +127,7 @@ $(function () {
 		dataObj[param].startTime = $("input[name*='[publication_end_date]']", slide).val();
 		dataObj[param].endTime = $("input[name*='[publication_end_date]']", slide).val();
 		dataObj[param].interval = $("input[name*='[delay]']", slide).val();
-		dataObj[param].slideName = $(slide).find('.admin-custom__slide-name').find('span').html();
+		dataObj[param].slideName = $("input[name*='[name]']", slide).val();
 
 		var chosenCities = $(slide).find('.select2-choices').find('div');
 		var chosenCitiesVal = $(slide).find("div[id*='_citys_hidden_inputs_wrap']").find('input');
@@ -393,6 +393,11 @@ $(function () {
 			}
 		}).done(function (data) {
 			if (data.response) {
+
+				if (data.response.slideId) {
+					$(currentTab).find("div[class*='_slides-id']").find('input').val(data.response.slideId);
+				}
+
 				$(currentTab).removeClass('active');
 				updatePreviewLine(currentTab);
 
