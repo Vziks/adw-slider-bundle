@@ -17,12 +17,49 @@ $(function () {
 	var moveSlideDownBtn = $(".admin-custom__arrow_down", ".admin-custom");
 
 	$(moveSlideUpBtn).click(function(){
-		var current = $(this).closest('.tab-content');
-		current.prev().before(current);
+		var currentSlide = $(this).closest('.tab-content');
+		var currentIndex = $(currentSlide).index() + 1;
+
+		if (currentIndex === 1) {
+			return false;
+		}
+
+		var prevSlide = tabs[currentIndex - 2];
+
+		var slidePosition = $('.admin-custom__position', currentSlide);
+		var prevSlidePosition = $('.admin-custom__position', prevSlide);
+
+		slidePosition.html(currentIndex - 1);
+		prevSlidePosition.html(currentIndex);
+
+		$("input[name*='[sort]']", currentSlide).val(currentIndex - 1);
+		$("input[name*='[sort]']", prevSlide).val(currentIndex);
+
+		currentSlide.prev().before(currentSlide);
+		tabs = $(".tab-content", ".admin-custom");
 	});
+
 	$(moveSlideDownBtn).click(function(){
-		var current = $(this).closest('.tab-content');
-		current.next().after(current);
+		var currentSlide = $(this).closest('.tab-content');
+		var currentIndex = $(currentSlide).index() + 1;
+
+		if (currentIndex === tabs.length) {
+			return false;
+		}
+
+		var nextSlide = tabs[currentIndex];
+
+		var slidePosition = $('.admin-custom__position', currentSlide);
+		var nextSlidePosition = $('.admin-custom__position', nextSlide);
+
+		slidePosition.html(currentIndex + 1);
+		nextSlidePosition.html(currentIndex);
+
+		$("input[name*='[sort]']", currentSlide).val(currentIndex + 1);
+		$("input[name*='[sort]']", nextSlide).val(currentIndex);
+
+		currentSlide.next().after(currentSlide);
+		tabs = $(".tab-content", ".admin-custom");
 	});
 
 	$(delBtn).on('click', function (e) {
@@ -64,17 +101,20 @@ $(function () {
 
 		currentTabFileInput.on('change', toggleSaveBtn);
 		currentTabTextarea.on('change', toggleSaveBtn);
+		$(moveSlideUpBtn).on('click', toggleSaveBtn);
+		$(moveSlideDownBtn).on('click', toggleSaveBtn);
 	}
 
-	function setSlideData(slide, type) {
+	function setSlideData(slide, type, id) {
 		dataObj = type === 'current' ? slidesCurrentData : slidesData;
 
-		var param = $(slide).index();
+		var param = id;
 
 		dataObj[param] = {};
 
 		dataObj[param].sliderId = $(slide).find("div[class*='_slides-slider__id']").find('input').val();
-		dataObj[param].slideId = $(slide).find("div[class*='_slides-id']").find('input').val();
+		dataObj[param].slideId = id;
+		dataObj[param].slidePosition = $("input[name*='[sort]']", slide).val();
 		dataObj[param].isHTML = $("input[name*='[type]']:checked", slide).val() === 'text';
 		dataObj[param].url = $("input[name*='[url]']", slide).val();
 		dataObj[param].slideHTML = $("textarea[name*='[text]']", slide).val();
@@ -107,6 +147,8 @@ $(function () {
 	function resetSlideContent(slide, data) {
 		var slideName = $(slide).find("input[name*='[name]']");
 
+		var slidePosition = $(slide).find("input[name*='[sort]']");
+
 		var isHTMLbtn = $(slide).find("input[name*='[type]'][value='text']");
 		var isImgBtn = $(slide).find("input[name*='[type]'][value='img']");
 		
@@ -135,6 +177,34 @@ $(function () {
 		
 		data.isHTML && $(isHTMLbtn).iCheck('check');
 		!data.isHTML && $(isImgBtn).iCheck('check');
+
+		if (data.slidePosition !== $(slidePosition).val()) {
+
+			function swapNodes(a, b) {
+				var aparent = a.parentNode;
+				var asibling = a.nextSibling === b ? a : a.nextSibling;
+				b.parentNode.insertBefore(a, b);
+				aparent.insertBefore(b, asibling);
+			}
+
+			var currentSlidePosition = $(slidePosition).val();
+			var slideToReplace = $( "input[name$='[sort]'][value = " + data.slidePosition + "]" ).closest('.tab-content');
+
+			var slidePositionWrap = $('.admin-custom__position', slide);
+			var prevSlide = tabs[$(slideToReplace).index()];
+
+			swapNodes(slide[0], prevSlide);
+
+			var prevSlidePosition = $('.admin-custom__position', prevSlide);
+
+			slidePositionWrap.html(data.slidePosition);
+			prevSlidePosition.html(currentSlidePosition);
+
+			$("input[name*='[sort]']", slide).val(data.slidePosition);
+			$("input[name*='[sort]']", prevSlide).val(currentSlidePosition);
+
+			tabs = $(".tab-content", ".admin-custom");
+		}
 
 		if (!data.imageName) {
 			$uploadForm.removeClass('active');
@@ -199,24 +269,20 @@ $(function () {
 		!$(currentTabSaveBtn).hasClass('disabled') && $(currentTabSaveBtn).addClass('disabled') && checkForUpdates(slide);
 	}
 
-	function getInitialSlideData(slide) {
-		var param = $(slide).index();
-
-		if (!slidesData[param]) {
+	function getInitialSlideData(id) {
+		if (!slidesData[id]) {
 			return false;
 		}
 
-		return slidesData[param];
+		return slidesData[id];
 	}
 
-	function getCurrentSlideData(slide) {
-		var param = $(slide).index();
-
-		if (!slidesCurrentData[param]) {
+	function getCurrentSlideData(id) {
+		if (!slidesCurrentData[id]) {
 			return false;
 		}
 
-		return slidesCurrentData[param];
+		return slidesCurrentData[id];
 	}
 
 	function updatePreviewLine(slideWrap) {
@@ -264,7 +330,7 @@ $(function () {
 		updatePreviewLine(tab);
 	});
 
-	$(".admin-custom__table", ".tab-content", ".admin-custom").on('click', function (e) {
+	$(".tab-content", ".admin-custom").on('click', function (e) {
 		if ($(e.target).hasClass("ui-icon")) {
 			return false;
 		}
@@ -296,7 +362,10 @@ $(function () {
 		});
 
 		updateSlide(tab);
-		!getInitialSlideData(tab) && setSlideData(tab);
+
+		var tabId = $(tab).find("div[class*='_slides-id']").find('input').val();
+
+		!getInitialSlideData(tabId) && setSlideData(tab, false, tabId);
 		checkForUpdates(tab);
 	});
 
@@ -309,8 +378,10 @@ $(function () {
 		var currentTab = $(this).closest(".tab-content");
 		var that = this;
 
-		setSlideData(currentTab, 'current');
-		var dataToSend = getCurrentSlideData(currentTab);
+		var tabId = $(currentTab).find("div[class*='_slides-id']").find('input').val();
+
+		setSlideData(currentTab, 'current', tabId);
+		var dataToSend = getCurrentSlideData(tabId);
 
 		$.ajax({
 			type: "post",
@@ -324,7 +395,8 @@ $(function () {
 			if (data.response) {
 				$(currentTab).removeClass('active');
 				updatePreviewLine(currentTab);
-				setSlideData(currentTab);
+
+				setSlideData(currentTab, false, tabId);
 			} else {
 				$(that).removeClass('disabled');
 				console.log('error');
@@ -338,8 +410,9 @@ $(function () {
 
 	$(".admin-custom__reset-btn", ".admin-custom").on('click', function () {
 		var currentTab = $(this).closest(".tab-content");
+		var tabId = $(currentTab).find("div[class*='_slides-id']").find('input').val();
 
-		var initialData = getInitialSlideData(currentTab);
+		var initialData = getInitialSlideData(tabId);
 		resetSlideContent(currentTab, initialData);
 	});
 
