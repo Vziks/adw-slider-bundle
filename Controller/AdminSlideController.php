@@ -57,6 +57,8 @@ class AdminSlideController extends Controller
 
             $slide->setName($request->get('slideName', 'slideImage'));
 
+            $slide->setSort($request->get('slidePosition'));
+
             if ($request->get('isHTML') == 'true') {
                 $slide->setType(Slide::TYPE_TEXT);
                 $slide->setText($request->get('slideHTML'));
@@ -93,6 +95,19 @@ class AdminSlideController extends Controller
                     $slide->setType(Slide::TYPE_IMG);
                 }
             }
+
+            if ($request->get('geo')) {
+
+                $citys = [];
+
+                foreach ($geos = $request->get('geo') as $geo) {
+                    $city = $em->getRepository('ADWSliderBundle:City')->findOneBy(['id' => $geo['id']]);
+                    $citys[] = $city;
+                }
+
+                $slide->setCitys($citys);
+            }
+
 
             if ($request->get('interval')) {
                 $slide->setDelay($request->get('interval'));
@@ -162,6 +177,8 @@ class AdminSlideController extends Controller
 
             $slide->setName($request->get('slideName', 'slideImage'));
 
+            $slide->setSort($request->get('slidePosition'));
+
             if ($request->get('isHTML') == 'true') {
                 $slide->setType(Slide::TYPE_TEXT);
                 $slide->setText($request->get('slideHTML'));
@@ -178,7 +195,6 @@ class AdminSlideController extends Controller
             }
 
             if ($request->get('imageName')) {
-
 
                 if ($this->check_base64_image($request->get('imageSrc'))) {
 
@@ -199,6 +215,19 @@ class AdminSlideController extends Controller
                     $slide->setType(Slide::TYPE_IMG);
                 }
             }
+
+            if ($request->get('geo')) {
+
+                $citys = [];
+
+                foreach ($geos = $request->get('geo') as $geo) {
+                    $city = $em->getRepository('ADWSliderBundle:City')->findOneBy(['id' => $geo['id']]);
+                    $citys[] = $city;
+                }
+
+                $slide->setCitys($citys);
+            }
+
 
             if ($request->get('interval')) {
                 $slide->setDelay($request->get('interval'));

@@ -72,7 +72,7 @@ class SlideAdmin extends AbstractAdmin
             ->add('id', 'hidden', [])
             ->add('slider.id', 'hidden', [
                 'mapped' => false,
-                'data' => ($this->getSubject() ? $this->getSubject()->getSlider()->getId() : null )
+                'data' => ($this->getSubject() && $this->getRequest()->get('admin_code') != 'adw.admin.slide' ? $this->getSubject()->getSlider()->getId() : null )
             ])
             ->add('type', 'choice', [
                 'choices' => [
