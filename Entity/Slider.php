@@ -72,7 +72,7 @@ class Slider
 
     /**
      * @ORM\OneToMany(targetEntity="ADW\SliderBundle\Entity\Slide", mappedBy="slider", cascade={"persist", "remove"}, orphanRemoval=true)
-     * @Orm\OrderBy({"sort" = "ASC"})
+     * @Orm\OrderBy({"sort" = "ASC", "id" = "DESC"})
      */
     private $slides;
 
