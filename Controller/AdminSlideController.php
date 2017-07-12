@@ -74,7 +74,9 @@ class AdminSlideController extends Controller
                 $slide->setIsUser(true);
             }
 
-            if ($request->get('imageName')) {
+//            preg_match('#^data:image/\w+;base64,#i', $request->get('imageSrc'));
+
+            if ($request->get('imageName') && preg_match('#^data:image/\w+;base64,#i', $request->get('imageSrc'))) {
 
                 if ($this->check_base64_image($request->get('imageSrc'))) {
 
@@ -142,22 +144,23 @@ class AdminSlideController extends Controller
 
                 $slide->setStatus(Slide::STATUS_SHOW);
 
-                if ($this->check_base64_image($request->get('imageSrc'))) {
+                if ($request->get('imageName') && preg_match('#^data:image/\w+;base64,#i', $request->get('imageSrc'))) {
+                    if ($this->check_base64_image($request->get('imageSrc'))) {
 
-                    $mediaManager = $this->container->get('sonata.media.manager.media');
+                        $mediaManager = $this->container->get('sonata.media.manager.media');
 
-                    $media = new Media();
-                    $file = $this->base64ToImage($request->get('imageSrc'), $request->get('imageName'));
+                        $media = new Media();
+                        $file = $this->base64ToImage($request->get('imageSrc'), $request->get('imageName'));
 
-                    $media->setBinaryContent($file);
-                    $media->setContext('slider');
-                    $media->setProviderName('sonata.media.provider.image');
-                    $media->setEnabled(true);
-                    $mediaManager->save($media, true);
+                        $media->setBinaryContent($file);
+                        $media->setContext('slider');
+                        $media->setProviderName('sonata.media.provider.image');
+                        $media->setEnabled(true);
+                        $mediaManager->save($media, true);
 
-                    $slide->setMedia($media);
+                        $slide->setMedia($media);
+                    }
                 }
-
             }
 
             $em->persist($slide);
@@ -194,7 +197,7 @@ class AdminSlideController extends Controller
                 $slide->setIsUser(true);
             }
 
-            if ($request->get('imageName')) {
+            if ($request->get('imageName') && preg_match('#^data:image/\w+;base64,#i', $request->get('imageSrc'))) {
 
                 if ($this->check_base64_image($request->get('imageSrc'))) {
 
@@ -262,21 +265,22 @@ class AdminSlideController extends Controller
 
                 $slide->setStatus(Slide::STATUS_SHOW);
 
+                if ($request->get('imageName') && preg_match('#^data:image/\w+;base64,#i', $request->get('imageSrc'))) {
+                    if ($this->check_base64_image($request->get('imageSrc'))) {
 
-                if ($this->check_base64_image($request->get('imageSrc'))) {
+                        $mediaManager = $this->container->get('sonata.media.manager.media');
 
-                    $mediaManager = $this->container->get('sonata.media.manager.media');
+                        $media = new Media();
+                        $file = $this->base64ToImage($request->get('imageSrc'), $request->get('imageName'));
 
-                    $media = new Media();
-                    $file = $this->base64ToImage($request->get('imageSrc'), $request->get('imageName'));
+                        $media->setBinaryContent($file);
+                        $media->setContext('slider');
+                        $media->setProviderName('sonata.media.provider.image');
+                        $media->setEnabled(true);
+                        $mediaManager->save($media, true);
 
-                    $media->setBinaryContent($file);
-                    $media->setContext('slider');
-                    $media->setProviderName('sonata.media.provider.image');
-                    $media->setEnabled(true);
-                    $mediaManager->save($media, true);
-
-                    $slide->setMedia($media);
+                        $slide->setMedia($media);
+                    }
                 }
 
             }
