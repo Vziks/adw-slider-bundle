@@ -13,8 +13,8 @@
     "sonata-project/admin-bundle": "~3.1",
     "sonata-project/media-bundle": "~3.1",
     "knplabs/doctrine-behaviors": "~1.1",
-    "adw/sonata-media-extra-bundle": "1.0.14",
-    "adw/common-bundle": " 1.0.5",
+    "adw/sonata-media-extra-bundle": "^1.0",
+    "adw/common-bundle": "^1.0",
     "adw/geoip-bundle": "^1.0"
   },
   "autoload": {
