@@ -55,7 +55,6 @@ class SliderAdmin extends AbstractAdmin
 //            dump($query->getRootAlias());
 
 //            die;
-
             return $query;
         }
     }
