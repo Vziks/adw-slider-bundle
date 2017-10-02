@@ -151,8 +151,7 @@ class SliderAdmin extends AbstractAdmin
         $id = $this->getSubject()->getId();
 
         $arrayAttr = ['attr' => [
-            'readonly' => true,
-            'disabled' => true
+            'readonly' => true
         ]];
 
         $formMapper
