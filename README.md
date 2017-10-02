@@ -97,7 +97,7 @@ sonata_media:
 $ bin/phpunit -c app vendor/adw/slider-bundle --tap
 ```
 
-### Tests ###
+### Preupdate data ###
 
 ```
 $ php app/console adw:ipgeobase:create - Создать Гео БД
