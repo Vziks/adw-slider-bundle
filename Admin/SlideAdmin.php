@@ -157,7 +157,10 @@ class SlideAdmin extends AbstractAdmin
                 'attr' => [
                     'class' => 'name'
                 ],
-                'label' => 'Название'
+                'label' => 'Название',
+                'required' => true,
+                'empty_data' => 'slideImage'
+
             ])
             ->end()
         ;

@@ -167,7 +167,7 @@ class SliderAdmin extends AbstractAdmin
             )
             ->add('description', null, [
                 'label' => 'Описание баннера (не показывается на сайте)',
-                'required' => false
+                'required' => true
             ])
             ->add('is_show')
             ->add('slides',
