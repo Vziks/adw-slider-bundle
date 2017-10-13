@@ -309,6 +309,8 @@ $(function () {
 			} else {
 				$(timeContainer).html('');
 			}
+		} else {
+			$(timeContainer).html('');
 		}
 
 		$(nameContainer).html() !== name && $(nameContainer).html(name);
