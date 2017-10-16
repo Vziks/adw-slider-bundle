@@ -300,9 +300,9 @@ $(function () {
 		var time = $("input[name*='[publication_end_date]']", slideWrap).val();
 
 		if (time || isHidden || isTemporary) {
-			if (isHidden && $(timeContainer).html() !== 'Скрыт') {
+			if (isHidden) {
 				$(timeContainer).html('Скрыт');
-			} else if (isTemporary && $(timeContainer).html() !== 'Показ до ' +  time) {
+			} else if (isTemporary) {
 				time = time.split(':')[0];
 				time = time.substring(0, time.length - 2);
 				$(timeContainer).html('Показ до ' + time);
@@ -313,7 +313,7 @@ $(function () {
 			$(timeContainer).html('');
 		}
 
-		$(nameContainer).html() !== name && $(nameContainer).html(name);
+		$(nameContainer).html(name);
 
 		isHTML && $(previewImg).prop('src', '') && $(previewHTML).show();
 		!isHTML && $(previewHTML).hide() && $(previewImg).attr('src') !== imgSrc && $(previewImg).prop('src', imgSrc);
