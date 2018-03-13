@@ -6,7 +6,7 @@
       "email": "vziks@live.ru"
     }
   ],
-  "license": "proprietary",
+  "license": "MIT",
   "description": "Bundle for Sliders",
   "type": "symfony-bundle",
   "require": {
